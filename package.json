@@ -1,0 +1,42 @@
+{
+  "name": "@openluxeco/cli",
+  "version": "0.1.0",
+  "description": "Official OpenLuxe command-line client — drive the OpenLuxe v1 API from your terminal or an AI agent.",
+  "type": "module",
+  "bin": {
+    "openluxe": "bin/openluxe.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/openluxe.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenLabs-co/openluxe-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OpenLabs-co/openluxe-cli/issues"
+  },
+  "homepage": "https://github.com/OpenLabs-co/openluxe-cli#readme",
+  "author": "OpenLuxe",
+  "keywords": [
+    "openluxe",
+    "cli",
+    "api",
+    "real-estate",
+    "crm",
+    "ai-agent"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
