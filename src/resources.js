@@ -178,4 +178,27 @@ export const RESOURCES = {
             show: { method: 'GET', path: '/me', summary: 'Who am I + token scopes' },
         },
     },
+    generate: {
+        summary: 'AI generation (async): start a job, then poll with `generations get <id>`',
+        commands: {
+            start: {
+                method: 'POST',
+                path: '/generate/:feature',
+                summary: 'Start a generation. feature ∈ image, video, sound_effect, '
+                    + 'email_template, sales_presentation, blog_article, podcast, sticker, '
+                    + 'brand_colors, dossier, agent_odysseus, agent_apollo, agent_atticus, '
+                    + 'agent_eva, agent_alfred. Inputs via -d \'<json>\'. Returns a 202 handle.',
+            },
+        },
+    },
+    generations: {
+        summary: 'Poll an async AI generation handle',
+        commands: {
+            get: {
+                method: 'GET',
+                path: '/generations/:id',
+                summary: 'Poll a generation by id — status (queued|processing|succeeded|failed) + result',
+            },
+        },
+    },
 };

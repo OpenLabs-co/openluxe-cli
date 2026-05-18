@@ -51,8 +51,20 @@ openluxe webhooks events
 openluxe me show
 ```
 
-Run `openluxe <resource>` to see its commands, or `openluxe help` for the
-full list.
+AI generation is async — start a job, then poll the returned handle:
+
+```bash
+# start (returns { data: { id, status, status_url } } with HTTP 202)
+openluxe generate start image -d '{"prompt":"a marble villa at golden hour"}'
+openluxe generate start agent_odysseus -d '{"message":"brief me before the meeting"}'
+
+# poll until status is succeeded | failed
+openluxe generations get <id>
+```
+
+Generations are charged the same credits as the equivalent in-app action; a
+shortfall returns `402` with a `topup_url`. Run `openluxe <resource>` to see
+its commands, or `openluxe help` for the full list.
 
 Raw passthrough to any v1 endpoint:
 
