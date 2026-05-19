@@ -38,6 +38,28 @@ openluxe auth logout      # forget the local token
 
 Revoke a CLI token anytime from **Settings → Integrations** on the web.
 
+## Terms of Service
+
+Use of the API and this CLI is governed by a binding agreement. Before any
+request will succeed you must read and accept the **OpenLuxe API & CLI Terms
+of Service** and every referenced policy (Terms of Service, Privacy, Acceptable
+Use, Data, Cookie). This is a one-time, in-browser step — authorizing the
+device during `openluxe auth login` records your acceptance. You are
+re-prompted only if the terms materially change (e.g. pricing, rate limits,
+discontinued endpoints).
+
+If a token predates the current terms (or they changed), every call returns
+`403` and the CLI tells you exactly where to accept. Review anytime:
+
+```bash
+openluxe terms
+```
+
+Key points: the API and CLI are provided "as is" with no uptime guarantee;
+endpoints, pricing, credits, and rate limits may change or be discontinued at
+any time without liability; AI-generated output may be inaccurate and must be
+independently verified. Full text: `https://openluxe.co/api-terms`.
+
 ## Use it
 
 Typed resource commands:

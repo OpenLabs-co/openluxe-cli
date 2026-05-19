@@ -53,6 +53,56 @@ function out(data) {
     process.stdout.write(typeof data === 'string' ? data + '\n' : JSON.stringify(data, null, 2) + '\n');
 }
 
+/** The server hard-blocks every call until the API & CLI Terms are accepted. */
+function isTermsBlock(e) {
+    return e?.status === 403
+        && typeof e?.body?.type === 'string'
+        && e.body.type.endsWith('/api_terms_required');
+}
+
+function printTermsBlock(body = {}) {
+    const acceptUrl = body.accept_url || `${load().base}/developers`;
+    console.error(C.red('✗ API & CLI Terms acceptance required'));
+    console.error('');
+    console.error('  Before using the API you must read and accept the current');
+    console.error('  OpenLuxe API & CLI Terms of Service and every referenced policy.');
+    console.error('  This is a one-time, in-browser step (it re-prompts only when');
+    console.error('  the terms change).');
+    console.error('');
+    console.error(`  Sign in and accept here:  ${C.cyan(acceptUrl)}`);
+    if (Array.isArray(body.required_policies) && body.required_policies.length) {
+        console.error('');
+        console.error('  You will be asked to accept:');
+        for (const p of body.required_policies) {
+            console.error(`    • ${p.title}${p.url ? C.dim('  ' + p.url) : ''}`);
+        }
+    }
+    console.error('');
+    console.error(C.dim('  Then re-run your command.'));
+}
+
+function termsHelp() {
+    const { base } = load();
+    console.log(`
+${C.bold('openluxe terms')} — API & CLI Terms of Service
+
+  Using the OpenLuxe API or CLI is governed by a binding agreement.
+  You must read and accept it (and every referenced policy) once, in
+  your browser while signed in, before any request will work. You'll
+  be re-prompted only if the terms materially change.
+
+  Accept / review:
+    API & CLI Terms     ${C.cyan(base + '/api-terms')}
+    Terms of Service    ${C.cyan(base + '/terms-of-service')}
+    Privacy Policy      ${C.cyan(base + '/privacy-policy')}
+    Acceptable Use      ${C.cyan(base + '/acceptable-use')}
+    Data Policy         ${C.cyan(base + '/data-policy')}
+    Cookie Policy       ${C.cyan(base + '/cookie-policy')}
+
+  Accept from:          ${C.cyan(base + '/developers')}
+`);
+}
+
 async function callApi(method, path, { positionals = [], flags = {}, body }) {
     // Fill :placeholders from --flag of the same name, else positionals in order.
     const used = new Set();
@@ -80,6 +130,10 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
         out(res);
     } catch (e) {
         if (e instanceof ApiError) {
+            if (isTermsBlock(e)) {
+                printTermsBlock(e.body);
+                process.exit(1);
+            }
             console.error(C.red(`✗ ${e.status} ${e.message}`));
             if (e.body && typeof e.body === 'object') console.error(C.dim(JSON.stringify(e.body, null, 2)));
             if (e.status === 401) console.error(C.dim('  Run: openluxe auth login'));
@@ -101,6 +155,7 @@ ${C.bold('AUTH')}
   auth login                Sign in via your browser (device flow)
   auth logout               Forget the local token
   auth status               Show who you're signed in as
+  terms                     Review / accept the API & CLI Terms
 
 ${C.bold('RAW')}
   api <METHOD> <path>       Call any v1 endpoint directly
@@ -131,7 +186,8 @@ export async function run(argv) {
     const [cmd, ...rest] = argv;
 
     if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') return topHelp();
-    if (cmd === '--version' || cmd === '-v') return out('openluxe 0.1.0');
+    if (cmd === '--version' || cmd === '-v') return out('openluxe 0.3.0');
+    if (cmd === 'terms') return termsHelp();
 
     if (cmd === 'auth') {
         const sub = rest[0];

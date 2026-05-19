@@ -54,6 +54,11 @@ export async function login({ base } = {}) {
             const who = poll.data.user?.email || poll.data.user?.name || 'your account';
             console.log(`\x1b[32m✓ Signed in as ${who}\x1b[0m`);
             console.log(`  Token stored at ${credentialsPath}`);
+            console.log('');
+            console.log('  Your API use is governed by the OpenLuxe API & CLI Terms');
+            console.log(`  and all referenced policies — see \x1b[36m${apiBase}/api-terms\x1b[0m`);
+            console.log("  (run `openluxe terms`). Authorizing this device recorded");
+            console.log("  your acceptance; you'll be re-prompted only if they change.");
             return;
         }
         if (poll.ok && poll.data?.status === 'pending') {
