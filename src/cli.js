@@ -186,7 +186,7 @@ export async function run(argv) {
     const [cmd, ...rest] = argv;
 
     if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') return topHelp();
-    if (cmd === '--version' || cmd === '-v') return out('openluxe 0.3.0');
+    if (cmd === '--version' || cmd === '-v') return out('openluxe 0.3.1');
     if (cmd === 'terms') return termsHelp();
 
     if (cmd === 'auth') {

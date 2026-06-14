@@ -134,6 +134,13 @@ export const RESOURCES = {
             enrollments: { method: 'GET', path: '/course-enrollments' },
         },
     },
+    smartboards: {
+        summary: 'Smartboards / collaborative diagrams (read-only in v1)',
+        commands: {
+            list: { method: 'GET', path: '/smartboards' },
+            get: { method: 'GET', path: '/smartboards/:smartboard', summary: 'One board with its elements' },
+        },
+    },
     credits: {
         summary: 'Credit balance & ledger',
         commands: {
