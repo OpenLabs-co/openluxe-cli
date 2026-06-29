@@ -107,6 +107,41 @@ scripts and tool-use loops.
 export OPENLUXE_API_URL=https://openluxe.co   # default; override for staging/local
 ```
 
+## MCP (Model Context Protocol)
+
+`openluxe mcp` runs an MCP server over stdio, so any MCP-aware client
+(Claude Code, Claude Desktop, Cursor, …) can drive OpenLuxe in a chat. It
+authenticates with your stored CLI token and proxies to the v1 API — the agent
+gets the same scoped, ToS-gated, billed surface you do.
+
+Sign in once (`openluxe auth login`), then register the server with your client.
+Example MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "openluxe": { "command": "openluxe", "args": ["mcp"] }
+  }
+}
+```
+
+It exposes a lean tool set — `openluxe_list_endpoints` to discover the full v1
+surface and `openluxe_api_request` to call any of it, plus typed helpers
+(`openluxe_me`, `openluxe_search`, `openluxe_contacts_list`,
+`openluxe_create_contact`, `openluxe_credits_balance`). OpenLuxe also hosts a
+remote MCP server at `https://openluxe.co/api/v1/mcp` (Bearer-authed with a
+`ol_itk_` token) for clients that speak Streamable HTTP directly.
+
+## Credits
+
+AI-generating calls (`openluxe generate …`) cost credits at web-app parity. A
+shortfall returns `402` with a top-up link; you can also open it anytime:
+
+```bash
+openluxe credits balance
+openluxe credits buy
+```
+
 ## Environment
 
 | Var | Purpose |

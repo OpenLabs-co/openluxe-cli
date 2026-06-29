@@ -2,6 +2,9 @@ import { request, ApiError } from './api.js';
 import { RESOURCES } from './resources.js';
 import * as auth from './auth.js';
 import { load } from './config.js';
+import { serve as mcpServe } from './mcp.js';
+
+const VERSION = '0.4.0';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,
@@ -81,6 +84,31 @@ function printTermsBlock(body = {}) {
     console.error(C.dim('  Then re-run your command.'));
 }
 
+/** A billable call hit a credit shortfall — surface the top-up path (no in-app modal here). */
+function printInsufficientCredits(body = {}) {
+    const { base } = load();
+    const topup = body.topup_url || `${base}/credits/buy`;
+    console.error(C.red('✗ 402 Insufficient credits'));
+    if (body.message) console.error(`  ${body.message}`);
+    if (body.required_credits !== undefined) {
+        console.error(C.dim(`  required: ${body.required_credits}  available: ${body.available_credits ?? 0}  type: ${body.credit_type ?? 'credits'}`));
+    }
+    console.error('');
+    console.error(`  Top up here:  ${C.cyan(topup)}`);
+    console.error(C.dim('  Then re-run your command.'));
+}
+
+/** `openluxe credits buy` — open / print the credit top-up page. */
+function creditsBuy(flags = {}) {
+    const { base } = load();
+    const url = new URL(`${base.replace(/\/$/, '')}/credits/buy`);
+    if (flags.topup) url.searchParams.set('topup', flags.topup);
+    if (flags.required) url.searchParams.set('required', flags.required);
+    url.searchParams.set('label', flags.label || 'API credit top-up');
+    console.log(`Open this page to buy OpenLuxe credits:\n\n  ${C.cyan(url.toString())}\n`);
+    console.log(C.dim('Credits fund AI-generating API calls (openluxe generate ...) at the same cost as the web app.'));
+}
+
 function termsHelp() {
     const { base } = load();
     console.log(`
@@ -134,6 +162,10 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
                 printTermsBlock(e.body);
                 process.exit(1);
             }
+            if (e.status === 402) {
+                printInsufficientCredits(e.body || {});
+                process.exit(1);
+            }
             console.error(C.red(`✗ ${e.status} ${e.message}`));
             if (e.body && typeof e.body === 'object') console.error(C.dim(JSON.stringify(e.body, null, 2)));
             if (e.status === 401) console.error(C.dim('  Run: openluxe auth login'));
@@ -162,6 +194,12 @@ ${C.bold('RAW')}
                             e.g. openluxe api GET /contacts --per_page 5
                                  openluxe api POST /notes -d '{"contact_id":1,"body":"hi"}'
 
+${C.bold('AI / MCP')}
+  mcp                       Run an MCP server over stdio (point Claude Code,
+                            Cursor, etc. at this to drive OpenLuxe in chat)
+  credits buy               Open the credit top-up page (funds AI calls)
+  manifest                  Print the typed-command surface as JSON
+
 ${C.bold('RESOURCES')}
 ${Object.entries(RESOURCES).map(([g, r]) => `  ${g.padEnd(16)} ${C.dim(r.summary)}`).join('\n')}
 
@@ -186,8 +224,22 @@ export async function run(argv) {
     const [cmd, ...rest] = argv;
 
     if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') return topHelp();
-    if (cmd === '--version' || cmd === '-v') return out('openluxe 0.3.1');
+    if (cmd === '--version' || cmd === '-v') return out('openluxe ' + VERSION);
     if (cmd === 'terms') return termsHelp();
+
+    // MCP server over stdio — point Claude Code / Cursor at `openluxe mcp`.
+    if (cmd === 'mcp') return mcpServe();
+
+    // Emit the typed-command surface as JSON (feeds the coverage tooling).
+    if (cmd === 'manifest') {
+        const commands = [];
+        for (const [resource, def] of Object.entries(RESOURCES)) {
+            for (const [command, spec] of Object.entries(def.commands)) {
+                commands.push({ resource, command, method: spec.method, path: spec.path, summary: spec.summary || null });
+            }
+        }
+        return out({ version: VERSION, count: commands.length, commands });
+    }
 
     if (cmd === 'auth') {
         const sub = rest[0];
@@ -204,6 +256,12 @@ export async function run(argv) {
         if (!method || !path) return die("usage: openluxe api <METHOD> <path> [-d '<json>'] [--query val]");
         const { flags, body } = parseArgs(rest.slice(2));
         return callApi(method, path, { flags, body });
+    }
+
+    // `credits buy` opens the top-up page (not an API call).
+    if (cmd === 'credits' && rest[0] === 'buy') {
+        const { flags } = parseArgs(rest.slice(1));
+        return creditsBuy(flags);
     }
 
     const group = RESOURCES[cmd];
