@@ -3,6 +3,14 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.1]
+
+### Added
+- **Pro access awareness** — the API/CLI/MCP now require Pro access on your
+  account. Commands that hit `402 platform_access_required` print a clear
+  "Pro access required" message with the current price and the unlock URL
+  (distinct from the per-call `insufficient_credits` 402).
+
 ## [0.4.0]
 
 ### Added

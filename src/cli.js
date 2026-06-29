@@ -4,7 +4,7 @@ import * as auth from './auth.js';
 import { load } from './config.js';
 import { serve as mcpServe } from './mcp.js';
 
-const VERSION = '0.4.0';
+const VERSION = '0.4.1';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,
@@ -61,6 +61,25 @@ function isTermsBlock(e) {
     return e?.status === 403
         && typeof e?.body?.type === 'string'
         && e.body.type.endsWith('/api_terms_required');
+}
+
+/** The API/CLI/MCP are Pro surfaces — blocked until the user unlocks Pro access. */
+function isPlatformAccessBlock(e) {
+    return e?.status === 402
+        && ((typeof e?.body?.type === 'string' && e.body.type.endsWith('/platform_access_required'))
+            || e?.body?.error === 'platform_access_required');
+}
+
+function printPlatformAccessBlock(body = {}) {
+    const url = body.upgrade_url || body.landing_url || `${load().base}/pro`;
+    const price = typeof body.price_cents === 'number' ? `$${(body.price_cents / 100).toLocaleString()}` : null;
+    console.error(C.red('✗ Pro access required'));
+    console.error('');
+    console.error('  The OpenLuxe API, CLI, and MCP server are part of the Pro suite.');
+    console.error(`  Unlock Pro access${price ? ` (${price} today)` : ''} to use them.`);
+    console.error('');
+    console.error(`  Unlock here:  ${C.cyan(url)}`);
+    console.error(C.dim('  Then re-run your command.'));
 }
 
 function printTermsBlock(body = {}) {
@@ -160,6 +179,10 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
         if (e instanceof ApiError) {
             if (isTermsBlock(e)) {
                 printTermsBlock(e.body);
+                process.exit(1);
+            }
+            if (isPlatformAccessBlock(e)) {
+                printPlatformAccessBlock(e.body || {});
                 process.exit(1);
             }
             if (e.status === 402) {

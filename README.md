@@ -60,6 +60,24 @@ endpoints, pricing, credits, and rate limits may change or be discontinued at
 any time without liability; AI-generated output may be inaccurate and must be
 independently verified. Full text: `https://openluxe.co/api-terms`.
 
+## Pro access
+
+The OpenLuxe API, this CLI, and the MCP server are part of the **Pro suite** —
+using them requires unlocking Pro access on your account (the same one-time
+platform access that gates the Pro apps in the web app). Until you unlock it,
+commands return:
+
+```
+✗ Pro access required
+  The OpenLuxe API, CLI, and MCP server are part of the Pro suite.
+  Unlock Pro access ($99 today) to use them.
+
+  Unlock here:  https://openluxe.co/onboarding/access
+```
+
+Authorizing the CLI (`openluxe auth login`) is also blocked in the browser until
+you unlock access. Admins and grandfathered accounts are exempt.
+
 ## Use it
 
 Typed resource commands:
