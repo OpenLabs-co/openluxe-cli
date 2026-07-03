@@ -3,6 +3,14 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.0]
+
+### Added
+- **Branded splash screen** — `openluxe` (and `openluxe help`) now opens with
+  the OpenLuxe diamond mark stacked above the wordmark in ASCII, washed in a
+  champagne-gold gradient, with version + docs link. Color auto-disables on
+  piped output and `NO_COLOR`.
+
 ## [0.5.2]
 
 ### Added

@@ -3,6 +3,7 @@ import { RESOURCES } from './resources.js';
 import * as auth from './auth.js';
 import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
+import { banner } from './banner.js';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,
@@ -198,6 +199,7 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
 
 function topHelp() {
     const { token, user, base } = load();
+    console.log(banner());
     console.log(`
 ${C.bold('openluxe')} — OpenLuxe API command-line client
 
