@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+        "openluxe": {
+            "command": "openluxe",
+            "args": ["mcp"]
+        }
+    }
+}

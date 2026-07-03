@@ -1,0 +1,14 @@
+{
+    "name": "openluxe",
+    "owner": {
+        "name": "OpenLuxe",
+        "url": "https://openluxe.co/developers"
+    },
+    "plugins": [
+        {
+            "name": "openluxe",
+            "source": "./plugins/openluxe",
+            "description": "Drive the OpenLuxe platform from Claude Code — the agent skill (full system knowledge) plus the MCP server wired to your openluxe CLI login."
+        }
+    ]
+}

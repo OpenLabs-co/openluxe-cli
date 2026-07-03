@@ -121,6 +121,30 @@ commands or `openluxe api <METHOD> <path>`. Output is always JSON on stdout;
 errors go to stderr with a non-zero exit code, so it composes cleanly in
 scripts and tool-use loops.
 
+**Install the agent skill** — a SKILL.md that teaches your agent the whole
+platform (surfaces, auth, discovery, the error contract, recipes, rules):
+
+```bash
+openluxe skill install            # Claude Code: ~/.claude/skills/openluxe/
+openluxe skill install --project  # repo-local: ./.claude/skills/openluxe/
+openluxe skill install --codex    # OpenAI Codex: managed block in ~/.codex/AGENTS.md
+openluxe skill show               # print it (any agent can just read it)
+```
+
+**Claude Code plugin** — the skill plus the MCP server, one install:
+
+```
+/plugin marketplace add OpenLabs-co/openluxe-cli
+/plugin install openluxe@openluxe
+```
+
+**Look up any endpoint's schema** before calling it:
+
+```bash
+openluxe describe contacts create     # typed command → params/body/response
+openluxe describe POST /notes         # any raw endpoint
+```
+
 ```bash
 export OPENLUXE_API_URL=https://openluxe.co   # default; override for staging/local
 ```

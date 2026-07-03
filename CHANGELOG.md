@@ -3,6 +3,31 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.0]
+
+### Added
+- **The OpenLuxe agent skill** — `plugins/openluxe/skills/openluxe/SKILL.md`
+  teaches any AI agent the entire platform: surfaces, auth, discovery, the
+  error contract, domain purposes, recipes, and safety rules. Ships in the
+  package; also downloadable at `https://openluxe.co/developers/skill.md`.
+- **`openluxe skill show | install [--project|--codex]`** — install the skill
+  into Claude Code (personal or repo-local) or OpenAI Codex (an idempotent
+  managed block in `~/.codex/AGENTS.md` that never touches other content).
+- **Claude Code plugin + marketplace** — `/plugin marketplace add
+  OpenLabs-co/openluxe-cli` then `/plugin install openluxe@openluxe` gets the
+  skill and the MCP server (wired to `openluxe mcp`) in one step.
+- **`openluxe describe <resource> <command>`** (or `describe POST /notes`) —
+  per-endpoint params/response schema + captured example, resolved from the
+  platform's OpenAPI doc via `/developers/reference/schema`. Where a write
+  body isn't statically typed, prints an honest note to lean on the 422
+  field errors.
+
+### Changed
+- Empty success bodies (deletes, 204s) now print `{"ok":true,"status":204}`
+  instead of `null`.
+- The splash screen is skipped when stdout isn't a TTY — piped help goes
+  straight to the commands.
+
 ## [0.6.1]
 
 ### Fixed

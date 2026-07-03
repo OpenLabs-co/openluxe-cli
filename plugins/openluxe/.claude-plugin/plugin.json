@@ -1,0 +1,13 @@
+{
+    "name": "openluxe",
+    "version": "0.7.0",
+    "description": "OpenLuxe for AI agents: the platform skill (CRM, listings, commerce, ERP, credits, AI generation — how to discover, call, and self-correct) plus an MCP server proxying the full v1 API through your `openluxe auth login` token. Requires: npm i -g @openluxeco/cli.",
+    "author": {
+        "name": "OpenLuxe",
+        "url": "https://openluxe.co/developers"
+    },
+    "homepage": "https://openluxe.co/developers/cli",
+    "repository": "https://github.com/OpenLabs-co/openluxe-cli",
+    "license": "MIT",
+    "keywords": ["openluxe", "crm", "api", "mcp", "real-estate", "commerce"]
+}

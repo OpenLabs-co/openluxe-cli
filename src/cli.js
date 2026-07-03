@@ -4,6 +4,7 @@ import * as auth from './auth.js';
 import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
 import { banner } from './banner.js';
+import { skillText, install as installSkill } from './skill.js';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,
@@ -199,7 +200,9 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
 
 function topHelp() {
     const { token, user, base } = load();
-    console.log(banner());
+    // The splash is for humans — piped/captured help (AI agents, scripts)
+    // gets straight to the commands without paying for the art.
+    if (process.stdout.isTTY) console.log(banner());
     console.log(`
 ${C.bold('openluxe')} — OpenLuxe API command-line client
 
@@ -220,6 +223,10 @@ ${C.bold('RAW')}
 ${C.bold('AI / MCP')}
   mcp                       Run an MCP server over stdio (point Claude Code,
                             Cursor, etc. at this to drive OpenLuxe in chat)
+  skill install             Install the OpenLuxe agent skill into Claude Code
+                            (--project for repo-local, --codex for ~/.codex/AGENTS.md)
+  skill show                Print the agent skill (SKILL.md)
+  describe <res> <cmd>      Input/output schema for a command (or: describe POST /notes)
   credits buy               Open the credit top-up page (funds AI calls)
   manifest                  Print the typed-command surface as JSON
 
@@ -252,6 +259,52 @@ export async function run(argv) {
 
     // MCP server over stdio — point Claude Code / Cursor at `openluxe mcp`.
     if (cmd === 'mcp') return mcpServe();
+
+    // The OpenLuxe agent skill — print it or install it into an AI agent.
+    if (cmd === 'skill') {
+        const sub = rest[0];
+        const { flags } = parseArgs(rest.slice(1));
+        if (sub === 'show') return console.log(skillText());
+        if (sub === 'install') {
+            const file = installSkill({ project: Boolean(flags.project), codex: Boolean(flags.codex) });
+            console.log(`✓ OpenLuxe agent skill installed → ${file}`);
+            if (flags.codex) console.log('  (managed block in AGENTS.md — re-run to update, other content untouched)');
+            else console.log("  Claude Code picks it up automatically; ask your agent about 'openluxe'.");
+            return;
+        }
+        return die('usage: openluxe skill show | skill install [--project | --codex]');
+    }
+
+    // Input/output schema for one endpoint — the agent's field-name lookup.
+    //   openluxe describe <resource> <command>
+    //   openluxe describe <METHOD> </path>
+    if (cmd === 'describe') {
+        const [a, b] = rest;
+        if (!a || !b) return die("usage: openluxe describe <resource> <command>  |  openluxe describe POST /notes");
+        let method, path, scope = null;
+        if (/^(GET|POST|PUT|PATCH|DELETE)$/i.test(a)) {
+            method = a.toUpperCase();
+            path = b;
+        } else {
+            const spec = RESOURCES[a]?.commands?.[b];
+            if (!spec) return die(`Unknown command: ${a} ${b}. Run 'openluxe ${a}' or 'openluxe manifest'.`);
+            method = spec.method;
+            path = spec.path;
+            scope = (spec.summary?.match(/\[scope: ([^\]]+)\]/) || [])[1] || null;
+        }
+        // The typed map uses :param — the OpenAPI doc uses {param}.
+        const specPath = path.replace(/:([A-Za-z_]+)/g, '{$1}');
+        const schema = await request('GET', '/developers/reference/schema', {
+            query: { method, path: specPath },
+            prefix: '',
+        }).catch(() => null);
+        if (!schema) return die(`No schema available for ${method} ${specPath} — see /developers/reference.`);
+        if (scope && !schema.scope) schema.scope = scope;
+        if (!schema.body && method !== 'GET') {
+            schema.body_note = 'Body fields not statically typed — send a best-guess payload and read the 422 response: it names every missing/invalid field.';
+        }
+        return out(schema);
+    }
 
     // Emit the typed-command surface as JSON (feeds the coverage tooling).
     if (cmd === 'manifest') {

@@ -35,12 +35,12 @@ function networkErrorMessage(e, url) {
  * Perform an authenticated v1 API request. `path` is everything after
  * /api/v1 (e.g. "/contacts"). `query` is an object, `body` is JSON-able.
  */
-export async function request(method, path, { query, body, token, base } = {}) {
+export async function request(method, path, { query, body, token, base, prefix = '/api/v1' } = {}) {
     const cfg = load();
     const apiBase = base || cfg.base;
     const bearer = token || cfg.token;
 
-    const url = new URL(apiBase.replace(/\/$/, '') + '/api/v1' + (path.startsWith('/') ? path : '/' + path));
+    const url = new URL(apiBase.replace(/\/$/, '') + prefix + (path.startsWith('/') ? path : '/' + path));
     if (query) {
         for (const [k, v] of Object.entries(query)) {
             if (v !== undefined && v !== null) url.searchParams.set(k, v);
@@ -72,6 +72,11 @@ export async function request(method, path, { query, body, token, base } = {}) {
             : `HTTP ${res.status}`;
         throw new ApiError(res.status, detail, parsed);
     }
+
+    // Empty success bodies (deletes, 204s) get an explicit success object so
+    // agents and scripts see more than a bare `null`.
+    if (parsed === null) return { ok: true, status: res.status };
+
     return parsed;
 }
 
