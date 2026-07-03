@@ -3,6 +3,15 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.1]
+
+### Fixed
+- The splash screen is now **responsive to terminal width**: full mark +
+  ANSI-shadow wordmark at ≥ 72 columns, a smaller mark + compact box-drawing
+  wordmark down to 36, and a tiny mark + spaced letters below that — a thin
+  pane no longer wraps the art into noise. Blocks share one left margin so the
+  mark's diagonals stay true at every size.
+
 ## [0.6.0]
 
 ### Added
