@@ -1,10 +1,8 @@
 import { request, ApiError } from './api.js';
 import { RESOURCES } from './resources.js';
 import * as auth from './auth.js';
-import { load } from './config.js';
+import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
-
-const VERSION = '0.4.1';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,

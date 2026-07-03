@@ -17,7 +17,7 @@
 import { createInterface } from 'node:readline';
 import { request, ApiError } from './api.js';
 import { RESOURCES } from './resources.js';
-import { load } from './config.js';
+import { load, VERSION } from './config.js';
 
 const PROTOCOL_VERSION = '2025-06-18';
 
@@ -123,7 +123,7 @@ async function handle(msg) {
             return result(id, {
                 protocolVersion: PROTOCOL_VERSION,
                 capabilities: { tools: {} },
-                serverInfo: { name: 'openluxe', version: '0.4.0' },
+                serverInfo: { name: 'openluxe', version: VERSION },
                 instructions: 'Drive the OpenLuxe v1 API (CRM, listings, business, generation, …). '
                     + 'Start with openluxe_list_endpoints, then openluxe_api_request for anything not covered by a typed tool.',
             });

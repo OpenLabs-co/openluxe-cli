@@ -5,6 +5,11 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync, chmodSync, rmSync }
 const DIR = join(homedir(), '.openluxe');
 const FILE = join(DIR, 'credentials.json');
 
+/** Single source of truth for the CLI version — read from package.json. */
+export const VERSION = JSON.parse(
+    readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+).version;
+
 const DEFAULT_BASE = process.env.OPENLUXE_API_URL || 'https://openluxe.co';
 
 export function load() {

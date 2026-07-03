@@ -3,6 +3,19 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0]
+
+### Added
+- `contacts create-earnings` — `POST /contacts/{contact}/commission-partnerships/{partnership}/earnings`
+  (log a commission earning on a partnership).
+- `data-objects create-records` — `POST /data/objects/{object}/records`
+  (create a record on a custom data object; complements the existing `upsert`).
+  Typed-command surface is now at 100% parity with the public v1 API (317/317).
+
+### Fixed
+- CLI version is now single-sourced from `package.json`; the MCP server's
+  `serverInfo.version` no longer reports a stale version.
+
 ## [0.4.1]
 
 ### Added
