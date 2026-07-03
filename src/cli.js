@@ -187,7 +187,7 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
                 printInsufficientCredits(e.body || {});
                 process.exit(1);
             }
-            console.error(C.red(`✗ ${e.status} ${e.message}`));
+            console.error(C.red('✗ ' + (e.status ? e.status + ' ' : '') + e.message));
             if (e.body && typeof e.body === 'object') console.error(C.dim(JSON.stringify(e.body, null, 2)));
             if (e.status === 401) console.error(C.dim('  Run: openluxe auth login'));
             process.exit(1);

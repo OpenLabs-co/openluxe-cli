@@ -3,6 +3,16 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.1]
+
+### Fixed
+- Network failures no longer print a bare "fetch failed": the CLI now surfaces
+  the real cause from `error.cause` (TLS, DNS, connection refused) with the
+  failing origin and an actionable hint — e.g. a self-signed local certificate
+  suggests `OPENLUXE_INSECURE=1`, an unknown host points at `OPENLUXE_API_URL`.
+  Applies to all commands including `auth login` (the device-grant handshake
+  previously threw the raw error).
+
 ## [0.5.0]
 
 ### Added
