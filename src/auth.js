@@ -50,10 +50,15 @@ export async function login({ base } = {}) {
         const poll = await postPublic(apiBase, '/cli/auth/poll', { device_code });
 
         if (poll.ok && poll.data?.status === 'authorized') {
-            save({ base: apiBase, token: poll.data.token, user: poll.data.user });
+            // Logging in with TLS verification relaxed (OPENLUXE_INSECURE=1 /
+            // --insecure) remembers that choice for this base, so follow-up
+            // commands against the same dev server don't need the flag.
+            const insecure = process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0';
+            save({ base: apiBase, token: poll.data.token, user: poll.data.user, insecure });
             const who = poll.data.user?.email || poll.data.user?.name || 'your account';
             console.log(`\x1b[32m✓ Signed in as ${who}\x1b[0m`);
             console.log(`  Token stored at ${credentialsPath}`);
+            if (insecure) console.log('  TLS verification stays relaxed for this server (remembered from login).');
             console.log('');
             console.log('  Your API use is governed by the OpenLuxe API & CLI Terms');
             console.log(`  and all referenced policies — see \x1b[36m${apiBase}/api-terms\x1b[0m`);

@@ -3,6 +3,15 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.2]
+
+### Added
+- Logging in with `OPENLUXE_INSECURE=1` (or `--insecure`) now **remembers the
+  choice** in the credentials file, so follow-up commands against the same dev
+  server no longer need the flag on every invocation. The remembered opt-in is
+  scoped to the saved base URL — pointing `OPENLUXE_API_URL` anywhere else
+  stays fully TLS-verified.
+
 ## [0.5.1]
 
 ### Fixed

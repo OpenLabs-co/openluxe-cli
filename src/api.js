@@ -21,7 +21,8 @@ function networkErrorMessage(e, url) {
 
     let msg = `Network error: ${causeMsg || e.message}${origin}`;
     if (/CERT|certificate|SSL|TLS/i.test(code + ' ' + causeMsg)) {
-        msg += '\n  Untrusted/self-signed certificate — for a local dev server, retry with OPENLUXE_INSECURE=1';
+        msg += '\n  Untrusted/self-signed certificate — for a local dev server, retry with OPENLUXE_INSECURE=1'
+            + '\n  (logging in with it set remembers the choice for that server)';
     } else if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
         msg += '\n  Host not found — check the API base (OPENLUXE_API_URL, or `openluxe auth status` for the stored base)';
     } else if (code === 'ECONNREFUSED') {

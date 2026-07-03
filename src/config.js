@@ -14,7 +14,7 @@ const DEFAULT_BASE = process.env.OPENLUXE_API_URL || 'https://openluxe.co';
 
 export function load() {
     if (!existsSync(FILE)) {
-        return { base: DEFAULT_BASE, token: null, user: null };
+        return { base: DEFAULT_BASE, token: null, user: null, insecure: false };
     }
     try {
         const data = JSON.parse(readFileSync(FILE, 'utf8'));
@@ -22,15 +22,19 @@ export function load() {
             base: process.env.OPENLUXE_API_URL || data.base || DEFAULT_BASE,
             token: data.token || null,
             user: data.user || null,
+            // The remembered insecure opt-in is scoped to the base it was saved
+            // for — pointing OPENLUXE_API_URL elsewhere must stay fully secure.
+            insecure: data.insecure === true
+                && (!process.env.OPENLUXE_API_URL || process.env.OPENLUXE_API_URL === data.base),
         };
     } catch {
-        return { base: DEFAULT_BASE, token: null, user: null };
+        return { base: DEFAULT_BASE, token: null, user: null, insecure: false };
     }
 }
 
-export function save({ base, token, user }) {
+export function save({ base, token, user, insecure }) {
     mkdirSync(DIR, { recursive: true });
-    writeFileSync(FILE, JSON.stringify({ base, token, user }, null, 2));
+    writeFileSync(FILE, JSON.stringify({ base, token, user, ...(insecure ? { insecure: true } : {}) }, null, 2));
     // Credentials file holds a bearer token — lock it down to the owner.
     try { chmodSync(FILE, 0o600); } catch { /* best effort (e.g. Windows) */ }
 }
