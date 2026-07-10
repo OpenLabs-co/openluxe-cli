@@ -114,6 +114,26 @@ openluxe api POST /notes -d '{"contact_id":1,"body":"hi"}'
 openluxe api DELETE /notes/9
 ```
 
+### Jump to the browser
+
+Some things aren't data — you play a mini game, watch a stream, or draw on a
+smartboard *in the app*. Browsable resources have an `open` shortcut, and typed
+commands grow three output flags:
+
+```bash
+openluxe mini-games open            # opens https://openluxe.co/mini-games
+openluxe mini-games open wordle     # …/mini-games/wordle
+openluxe smartboards open 42        # …/smartboards/42
+openluxe contacts get 42 --web      # print just the record's web URL
+openluxe contacts get 42 --open     # print the JSON AND launch the page
+openluxe kits list --json           # suppress the ↗ link hint
+```
+
+On a TTY, commands print a dim `↗ Open: <url>` hint (on stderr — piped stdout
+is always pure JSON, byte-identical for scripts and agents). Records that carry
+a `public_url` field use it as the canonical link; otherwise the CLI knows the
+hub and id-bound pages.
+
 ## For AI agents
 
 Point your agent at the binary. Every endpoint is reachable via the typed

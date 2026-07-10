@@ -38,6 +38,7 @@ function endpointCatalog() {
     const rows = [];
     for (const [resource, def] of Object.entries(RESOURCES)) {
         for (const [command, spec] of Object.entries(def.commands)) {
+            if (spec.kind === 'web') continue; // CLI-local browser shortcuts, not API endpoints
             rows.push({ resource, command, method: spec.method, path: spec.path, summary: spec.summary || null });
         }
     }
@@ -49,7 +50,9 @@ const TOOLS = [
         name: 'openluxe_api_request',
         description:
             'Call any OpenLuxe v1 API endpoint. Use openluxe_list_endpoints first to discover paths. '
-            + 'GET/DELETE use `query`; POST/PATCH/PUT use `body`. Paths are relative to /api/v1 (e.g. "/contacts").',
+            + 'GET/DELETE use `query`; POST/PATCH/PUT use `body`. Paths are relative to /api/v1 (e.g. "/contacts"). '
+            + 'When a record includes `public_url`, that is its human-facing web page — if the user\'s goal is to '
+            + 'view, play, watch, or edit the thing in the app, give them that link instead of pasting the object.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -125,7 +128,9 @@ async function handle(msg) {
                 capabilities: { tools: {} },
                 serverInfo: { name: 'openluxe', version: VERSION },
                 instructions: 'Drive the OpenLuxe v1 API (CRM, listings, business, generation, …). '
-                    + 'Start with openluxe_list_endpoints, then openluxe_api_request for anything not covered by a typed tool.',
+                    + 'Start with openluxe_list_endpoints, then openluxe_api_request for anything not covered by a typed tool. '
+                    + 'Records with a `public_url` field have a human-facing web page — when the user wants to '
+                    + 'experience the thing (play a game, watch, join, open a board), hand them that URL.',
             });
 
         case 'notifications/initialized':

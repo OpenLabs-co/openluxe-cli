@@ -1,6 +1,7 @@
 import { request, ApiError } from './api.js';
-import { RESOURCES } from './resources.js';
+import { RESOURCES, WEB } from './resources.js';
 import * as auth from './auth.js';
+import { openBrowser } from './browser.js';
 import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
 import { banner } from './banner.js';
@@ -150,7 +151,61 @@ ${C.bold('openluxe terms')} — API & CLI Terms of Service
 `);
 }
 
-async function callApi(method, path, { positionals = [], flags = {}, body }) {
+/**
+ * The canonical web page for a response, if one is known.
+ * Precedence: payload `public_url` (the server knows its slug/uuid/token
+ * bindings) → the resource's id-bound `item` mapping → the resource `hub`.
+ */
+function resolveLink(resource, res) {
+    const web = WEB[resource];
+    const { base } = load();
+    const abs = (p) => base.replace(/\/$/, '') + p;
+    const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : null);
+    const row = !list && res?.data && typeof res.data === 'object' ? res.data
+        : (!list && res && typeof res === 'object' && !res.data ? res : null);
+    const label = web?.label || 'Open';
+    if (row?.public_url) return { url: row.public_url, label };
+    if (row && web?.item) {
+        const p = web.item(row);
+        if (p) return { url: abs(p), label };
+    }
+    if (web?.hub) return { url: abs(web.hub), label, empty: list ? list.length === 0 : false };
+    return null;
+}
+
+/** `openluxe <resource> open [arg]` — no API call; print (and on a TTY launch) the web page. */
+function openWeb(spec, { positionals = [], flags = {} }) {
+    const { base } = load();
+    let pi = 0;
+    const path = spec.path
+        .replace(/:([A-Za-z_]+)\??/g, (m, name) => {
+            const optional = m.endsWith('?');
+            const v = flags[name] !== undefined ? flags[name] : positionals[pi++];
+            if (v === undefined) {
+                if (optional) return '';
+                die(`Missing argument: ${name}`);
+            }
+            return encodeURIComponent(v);
+        })
+        .replace(/\/+$/, '') || '/';
+    const url = base.replace(/\/$/, '') + path;
+    out(url);
+    if (process.stdout.isTTY && !flags['no-open']) {
+        console.error(C.dim('  Opening your browser… (--no-open to skip)'));
+        openBrowser(url);
+    }
+}
+
+async function callApi(method, path, { positionals = [], flags = {}, body, resource } = {}) {
+    // Output-affordance flags — consumed by the CLI on typed commands, never
+    // sent to the API. Raw `openluxe api …` passes no `resource`, so it keeps
+    // every flag verbatim (no reserved query-param names on the escape hatch).
+    let openFlag = false, webOnly = false, jsonOnly = false;
+    if (resource) {
+        openFlag = flags.open === true; delete flags.open;
+        webOnly = flags.web === true; delete flags.web;
+        jsonOnly = flags.json === true; delete flags.json;
+    }
     // Fill :placeholders from --flag of the same name, else positionals in order.
     const used = new Set();
     let pi = 0;
@@ -174,7 +229,21 @@ async function callApi(method, path, { positionals = [], flags = {}, body }) {
 
     try {
         const res = await request(method, filled, { query, body: payload });
+        const link = resource ? resolveLink(resource, res) : null;
+        if (webOnly) {
+            if (!link) die(`No web page known for '${resource}'.`);
+            out(link.url);
+            return;
+        }
         out(res);
+        if (link && openFlag) openBrowser(link.url);
+        // Human affordance only: the link hint rides on stderr and only when
+        // stderr is a TTY — piped stdout (agents, jq, scripts) is untouched,
+        // and `contacts get 5 | jq .` still shows the hint on the terminal.
+        if (link && !jsonOnly && (openFlag || process.stderr.isTTY)) {
+            const note = link.empty ? `Nothing here yet — ${link.label.toLowerCase()} at` : `${link.label}:`;
+            console.error(C.dim(`↗ ${note} `) + C.cyan(link.url));
+        }
     } catch (e) {
         if (e instanceof ApiError) {
             if (isTermsBlock(e)) {
@@ -220,6 +289,12 @@ ${C.bold('RAW')}
                             e.g. openluxe api GET /contacts --per_page 5
                                  openluxe api POST /notes -d '{"contact_id":1,"body":"hi"}'
 
+${C.bold('BROWSER')}
+  <resource> open [arg]     Jump to the web page (mini-games, smartboards, …)
+  --open                    After any typed command: launch the record's page
+  --web                     Print just the record's web URL (no JSON)
+  --json                    Suppress the ↗ link hint (piped output never has it)
+
 ${C.bold('AI / MCP')}
   mcp                       Run an MCP server over stdio (point Claude Code,
                             Cursor, etc. at this to drive OpenLuxe in chat)
@@ -231,7 +306,7 @@ ${C.bold('AI / MCP')}
   manifest                  Print the typed-command surface as JSON
 
 ${C.bold('RESOURCES')}
-${Object.entries(RESOURCES).map(([g, r]) => `  ${g.padEnd(16)} ${C.dim(r.summary)}`).join('\n')}
+${Object.entries(RESOURCES).filter(([g]) => g !== 'cli').map(([g, r]) => `  ${g.padEnd(16)} ${C.dim(r.summary)}`).join('\n')}
 
   Run ${C.cyan('openluxe <resource>')} to see its commands.
 
@@ -245,7 +320,8 @@ function groupHelp(group) {
     const r = RESOURCES[group];
     console.log(`\n${C.bold('openluxe ' + group)} — ${r.summary}\n`);
     for (const [name, c] of Object.entries(r.commands)) {
-        console.log(`  ${(group + ' ' + name).padEnd(28)} ${C.dim(`${c.method} ${c.path}`)}${c.summary ? '  ' + c.summary : ''}`);
+        const sig = c.kind === 'web' ? `↗ ${c.path}` : `${c.method} ${c.path}`;
+        console.log(`  ${(group + ' ' + name).padEnd(28)} ${C.dim(sig)}${c.summary ? '  ' + c.summary : ''}`);
     }
     console.log('');
 }
@@ -288,6 +364,7 @@ export async function run(argv) {
         } else {
             const spec = RESOURCES[a]?.commands?.[b];
             if (!spec) return die(`Unknown command: ${a} ${b}. Run 'openluxe ${a}' or 'openluxe manifest'.`);
+            if (spec.kind === 'web') return die(`'${a} ${b}' is a browser shortcut (${spec.path}) — nothing to describe.`);
             method = spec.method;
             path = spec.path;
             scope = (spec.summary?.match(/\[scope: ([^\]]+)\]/) || [])[1] || null;
@@ -307,10 +384,12 @@ export async function run(argv) {
     }
 
     // Emit the typed-command surface as JSON (feeds the coverage tooling).
+    // `kind: 'web'` browser shortcuts are CLI-local, not API endpoints — skip.
     if (cmd === 'manifest') {
         const commands = [];
         for (const [resource, def] of Object.entries(RESOURCES)) {
             for (const [command, spec] of Object.entries(def.commands)) {
+                if (spec.kind === 'web') continue;
                 commands.push({ resource, command, method: spec.method, path: spec.path, summary: spec.summary || null });
             }
         }
@@ -350,5 +429,6 @@ export async function run(argv) {
     if (!command) return die(`Unknown '${cmd}' command: ${subName}. Run 'openluxe ${cmd}' for options.`);
 
     const { positionals, flags, body } = parseArgs(rest.slice(1));
-    return callApi(command.method, command.path, { positionals, flags, body });
+    if (command.kind === 'web') return openWeb(command, { positionals, flags });
+    return callApi(command.method, command.path, { positionals, flags, body, resource: cmd });
 }

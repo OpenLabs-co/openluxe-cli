@@ -772,3 +772,59 @@ export const RESOURCES = {
         },
     },
 };
+
+/**
+ * Web affordances — where a HUMAN goes in the browser for each resource.
+ *
+ * Some surfaces are experiences, not data: you can't play a mini game, watch
+ * a movie, or draw on a smartboard in a terminal. For those (and for records
+ * people routinely open after finding them here), the CLI prints an
+ * "↗ Open: <url>" line on a TTY and powers `openluxe <resource> open`.
+ *
+ * Per resource:
+ *   hub    — path of the area's landing page (verified against the web app's
+ *            route table; do NOT guess routes).
+ *   item   — (row) => path for ONE record. Only for id-bound web routes; the
+ *            server's `public_url` field (kits, pro profiles, funnels, …)
+ *            always wins when present because slug/uuid/token bindings are
+ *            the server's to know.
+ *   label  — verb for the link line (default "Open").
+ *   open   — path template for the injected `open` command; a trailing
+ *            `:param?` is optional and dropped when not given.
+ *
+ * Piped/non-TTY output NEVER changes — agents and scripts see byte-identical
+ * JSON. Humans on a TTY get the link line on stderr.
+ */
+export const WEB = {
+    'mini-games': { hub: '/mini-games', label: 'Play', open: '/mini-games/:slug?', openSummary: 'Open the mini-games hub (or one game by slug) in your browser' },
+    arena: { hub: '/arenas', label: 'Play', open: '/arenas', openSummary: 'Open the arena lobby in your browser' },
+    openflix: { hub: '/openflix', label: 'Watch', open: '/openflix', openSummary: 'Open OpenFlix in your browser' },
+    livestreams: { hub: '/livestreams', label: 'Watch', open: '/livestreams/:slug?', openSummary: 'Open livestreams (or one room by slug) in your browser' },
+    webinars: { hub: '/webinars', open: '/webinars/:slug?', openSummary: 'Open webinars (or one webinar by slug) in your browser' },
+    kits: { hub: '/kits', open: '/kits', openSummary: 'Open your kits in your browser (kit records carry a public_url landing link)' },
+    courses: { hub: '/courses', label: 'Learn', open: '/courses/:slug?', openSummary: 'Open courses (or one course by slug) in your browser' },
+    smartboards: { hub: '/smartboards', item: (r) => (r.uuid ? `/smartboards/${r.uuid}` : null), open: '/smartboards/:smartboard?', openSummary: 'Open a smartboard by uuid (or the hub) in your browser' },
+    kanbans: { hub: '/kanbans', item: (r) => (r.uuid ? `/kanbans/${r.uuid}` : null), open: '/kanbans/:kanban?', openSummary: 'Open a kanban board by uuid (or the hub) in your browser' },
+    listings: { hub: '/listings', item: (r) => (r.uuid ? `/listing/${r.uuid}` : null), open: '/listings', openSummary: 'Open listings in your browser' },
+    meetups: { hub: '/events', open: '/events', openSummary: 'Open events/meetups in your browser' },
+    associations: { item: (r) => (r.slug ? `/associations/${r.slug}` : null), open: '/associations/:association', openSummary: 'Open an association hub in your browser (by slug)' },
+    'branding-projects': { hub: '/open-creative/brand-hub', item: (r) => (r.id ? `/open-creative/brand-hub/projects/${r.id}` : null), open: '/open-creative/brand-hub', openSummary: 'Open the Brand Hub in your browser' },
+    brands: { hub: '/open-creative/brand-hub', open: '/open-creative/brand-hub', openSummary: 'Open the Brand Hub in your browser' },
+    deals: { item: (r) => (r.uuid ? `/deals/${r.uuid}` : null), open: '/deals/:deal', openSummary: 'Open a deal by uuid in your browser' },
+    escrow: { item: (r) => (r.id ? `/escrow/${r.id}` : null), open: '/escrow/:escrow', openSummary: 'Open an escrow transaction in your browser' },
+    contacts: { item: (r) => (r.id ? `/contacts/${r.id}` : null), open: '/contacts/:contact', openSummary: 'Open a contact in your browser' },
+    tasks: { hub: '/tasks', open: '/tasks', openSummary: 'Open your tasks in your browser' },
+    goals: { hub: '/goals', open: '/goals', openSummary: 'Open your goals in your browser' },
+    'live-shop': { hub: '/live-shop', open: '/live-shop', openSummary: 'Open Live Shop in your browser' },
+    credits: { hub: '/credits' },
+    'professional-profiles': { open: '/pro/:handle', openSummary: 'Open a public professional profile in your browser (by handle)' },
+};
+
+// Inject the `open` commands so `openluxe <resource>` help lists them and the
+// dispatcher can route them (kind: 'web' — no API call, prints/launches a URL).
+for (const [name, web] of Object.entries(WEB)) {
+    const res = RESOURCES[name];
+    if (web.open && res && !res.commands.open) {
+        res.commands.open = { kind: 'web', path: web.open, summary: web.openSummary || 'Open in your browser' };
+    }
+}

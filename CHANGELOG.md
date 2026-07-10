@@ -3,6 +3,35 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.0]
+
+### Added
+- **Browser hand-off layer** (from the human/agent UX audit,
+  `docs/AUDIT_HUMAN_AGENT_UX.md`): some records aren't the product — you play
+  a mini game or draw on a smartboard in the app, not in a terminal.
+  - `openluxe <resource> open [arg]` browser shortcuts on 20+ resources
+    (`mini-games open [slug]`, `smartboards open 42`, `webinars open <slug>`,
+    `contacts open 123`, `arena open`, `openflix open`, …). On a TTY they
+    launch your browser (`--no-open` to skip); piped, they print the URL.
+  - `--web` on typed commands prints just the record's canonical web URL;
+    `--open` launches it after the JSON; `--json` suppresses the hint.
+  - On a TTY, typed commands print a dim `↗ Open: <url>` hint on **stderr** —
+    piped stdout is byte-identical to before (agents/scripts unaffected).
+  - Empty lists now point somewhere useful: `↗ Nothing here yet — play at
+    https://openluxe.co/mini-games`.
+  - Link precedence: payload `public_url` (server-known slug/uuid/token
+    bindings) → id-bound item map → resource hub. The CLI never guesses
+    slug/token URLs.
+- Agent skill (SKILL.md): new "hand the human a link when the goal is the
+  experience" section + rule 7; MCP server instructions/tool descriptions now
+  teach relaying `public_url`.
+
+### Changed
+- The internal `cli` resource (device-auth plumbing) is hidden from
+  `openluxe help` (still functional).
+- `openluxe manifest` and MCP `openluxe_list_endpoints` exclude the new
+  browser shortcuts (they are CLI-local, not API endpoints).
+
 ## [0.7.1]
 
 ### Fixed

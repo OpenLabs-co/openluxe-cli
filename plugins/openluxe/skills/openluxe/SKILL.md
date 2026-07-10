@@ -57,6 +57,23 @@ openluxe api POST /notes -d '{"contact_id":123,"content":"Called re: valuation"}
 - Empty bodies (deletes, 204s) print `{"ok":true,"status":204}`.
 - List responses are Laravel paginator shape: `{data:[…], links, meta}` — page via `--page`/`--per_page`.
 
+## Hand the human a link when the goal is the experience
+
+Some records are **not the product** — you can't play a mini game, watch a movie,
+join a livestream, or draw on a smartboard in a terminal. When the user's goal is
+to *do/see the thing* (play, watch, join, edit, take a course, review a page):
+
+1. Records that carry a **`public_url`** field: give the user that URL — it is the
+   record's canonical web page. Don't paste the JSON object at them.
+2. Typed commands support `--web` (print just the record's web URL) and every
+   browsable resource has an `open` shortcut: `openluxe mini-games open`,
+   `openluxe smartboards open 42`, `openluxe contacts open 123`,
+   `openluxe webinars open <slug>`, `openluxe kanbans open 7`, … (`↗` entries in
+   `openluxe <resource>` help). On a TTY these launch the browser; piped, they
+   print the URL — so YOU can run them to fetch the link to relay.
+3. The data endpoints still matter for *answering questions* (history, stats,
+   fields) — fetch data to reason, hand a link to act.
+
 ## Error contract (how to self-correct)
 
 | Status | Shape | What you do |
@@ -116,3 +133,4 @@ OPENLUXE_API_URL=https://openluxe.test OPENLUXE_INSECURE=1 openluxe auth login
 4. **Respect the gates** — Terms/Pro 402/403 blocks need a human browser action; retrying is useless.
 5. **Money and PII read endpoints may be field-masked** — a `_masked` array on a resource names fields redacted for your token's role; don't treat masked nulls as missing data.
 6. Prefer typed commands (self-documenting) over raw `api` when one exists; `openluxe manifest` tells you.
+7. **Experience surfaces end in a link, not JSON** — when the user wants to play/watch/join/edit, relay the record's `public_url` (or `openluxe <resource> open …` URL); dump objects only when they asked for data.
