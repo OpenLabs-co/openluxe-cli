@@ -3,6 +3,16 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.1]
+
+### Fixed
+- `auth login` no longer inherits the API base saved by a previous login — a
+  past dev-server login (`openluxe.test`) silently captured every future
+  login, including production ones. Login now resolves `--base` →
+  `OPENLUXE_API_URL` → `https://openluxe.co` and prints which server it is
+  signing in to. Commands other than login still use the saved base their
+  token belongs to.
+
 ## [0.7.0]
 
 ### Added

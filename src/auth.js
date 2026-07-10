@@ -19,7 +19,10 @@ function openBrowser(url) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function login({ base } = {}) {
-    const apiBase = base || process.env.OPENLUXE_API_URL || load().base || DEFAULT_BASE;
+    // Deliberately NOT load().base: a saved dev base (e.g. openluxe.test) must
+    // never silently capture a fresh login — target a dev server explicitly
+    // with --base or OPENLUXE_API_URL.
+    const apiBase = base || process.env.OPENLUXE_API_URL || DEFAULT_BASE;
 
     const start = await postPublic(apiBase, '/cli/auth/start', {
         client_name: 'OpenLuxe CLI',
@@ -32,6 +35,8 @@ export async function login({ base } = {}) {
 
     const { device_code, user_code, verification_uri_complete, verification_uri, interval, expires_in } = start.data;
 
+    console.log('');
+    console.log(`  Signing in to \x1b[1m${apiBase}\x1b[0m`);
     console.log('');
     console.log('  Authorize this device by visiting:');
     console.log(`    \x1b[36m${verification_uri_complete || verification_uri}\x1b[0m`);
