@@ -1,6 +1,6 @@
 {
   "name": "@openluxeco/cli",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Official OpenLuxe command-line client — drive the OpenLuxe v1 API from your terminal or an AI agent.",
   "type": "module",
   "bin": {

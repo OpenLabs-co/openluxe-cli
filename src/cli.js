@@ -319,7 +319,11 @@ ${C.bold('STATE')}
 function groupHelp(group) {
     const r = RESOURCES[group];
     console.log(`\n${C.bold('openluxe ' + group)} — ${r.summary}\n`);
+    // `hidden` commands are renamed-away legacy aliases — still dispatchable
+    // (nothing that scripted against the old name breaks) but not worth
+    // showing a human two names for the same call.
     for (const [name, c] of Object.entries(r.commands)) {
+        if (c.hidden) continue;
         const sig = c.kind === 'web' ? `↗ ${c.path}` : `${c.method} ${c.path}`;
         console.log(`  ${(group + ' ' + name).padEnd(28)} ${C.dim(sig)}${c.summary ? '  ' + c.summary : ''}`);
     }
@@ -384,12 +388,14 @@ export async function run(argv) {
     }
 
     // Emit the typed-command surface as JSON (feeds the coverage tooling).
-    // `kind: 'web'` browser shortcuts are CLI-local, not API endpoints — skip.
+    // `kind: 'web'` browser shortcuts are CLI-local, not API endpoints, and
+    // `hidden` entries are renamed-away legacy aliases (still dispatchable,
+    // just not worth listing twice) — both skip the discovery surface.
     if (cmd === 'manifest') {
         const commands = [];
         for (const [resource, def] of Object.entries(RESOURCES)) {
             for (const [command, spec] of Object.entries(def.commands)) {
-                if (spec.kind === 'web') continue;
+                if (spec.kind === 'web' || spec.hidden) continue;
                 commands.push({ resource, command, method: spec.method, path: spec.path, summary: spec.summary || null });
             }
         }

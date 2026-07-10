@@ -182,7 +182,7 @@ export const RESOURCES = {
         summary: 'Smartboards / collaborative diagrams (read-only in v1)',
         commands: {
             list: { method: 'GET', path: '/smartboards' },
-            get: { method: 'GET', path: '/smartboards/:smartboard', summary: 'One board with its elements' },
+            get: { method: 'GET', path: '/smartboards/:uuid', summary: 'One board with its elements' },
         },
     },
     credits: {
@@ -263,6 +263,15 @@ export const RESOURCES = {
             list: { method: 'GET', path: '/live-shop', summary: 'GET /live-shop  [scope: livestreams:read]' },
         },
     },
+    reachverce: {
+        summary: 'Reachverce marketing campaigns (v1, read-only)',
+        commands: {
+            list: { method: 'GET', path: '/reachverce/campaigns', summary: 'GET /reachverce/campaigns  [scope: reachverce:campaigns:read]' },
+            get: { method: 'GET', path: '/reachverce/campaigns/:uuid', summary: 'GET /reachverce/campaigns/{uuid}  [scope: reachverce:campaigns:read]' },
+            recipients: { method: 'GET', path: '/reachverce/campaigns/:uuid/recipients', summary: 'GET /reachverce/campaigns/{uuid}/recipients  [scope: reachverce:campaigns:read]' },
+            events: { method: 'GET', path: '/reachverce/campaigns/:uuid/events', summary: 'GET /reachverce/campaigns/{uuid}/events  [scope: reachverce:campaigns:read]' },
+        },
+    },
     kanbans: {
         summary: 'kanbans (v1)',
         commands: {
@@ -330,7 +339,8 @@ export const RESOURCES = {
         summary: 'phone numbers (v1)',
         commands: {
             list: { method: 'GET', path: '/phone-numbers', summary: 'GET /phone-numbers  [scope: comms:numbers:read]' },
-            'list-2': { method: 'GET', path: '/phone-numbers/:uuid', summary: 'GET /phone-numbers/{uuid}  [scope: comms:numbers:read]' },
+            get: { method: 'GET', path: '/phone-numbers/:uuid', summary: 'GET /phone-numbers/{uuid}  [scope: comms:numbers:read]' },
+            'list-2': { method: 'GET', path: '/phone-numbers/:uuid', summary: 'GET /phone-numbers/{uuid}  [scope: comms:numbers:read]', hidden: true },
             create: { method: 'POST', path: '/phone-numbers', summary: 'POST /phone-numbers  [scope: comms:numbers:write]' },
         },
     },
@@ -339,12 +349,14 @@ export const RESOURCES = {
         commands: {
             overview: { method: 'GET', path: '/command-centers/:slug/overview', summary: 'GET /command-centers/{slug}/overview  [scope: business:command-center:read]' },
             missions: { method: 'GET', path: '/command-centers/:slug/missions', summary: 'GET /command-centers/{slug}/missions  [scope: business:command-center:read]' },
-            'missions-2': { method: 'GET', path: '/command-centers/:slug/missions/:mission', summary: 'GET /command-centers/{slug}/missions/{mission}  [scope: business:command-center:read]' },
+            mission: { method: 'GET', path: '/command-centers/:slug/missions/:mission', summary: 'GET /command-centers/{slug}/missions/{mission}  [scope: business:command-center:read]' },
+            'missions-2': { method: 'GET', path: '/command-centers/:slug/missions/:mission', summary: 'GET /command-centers/{slug}/missions/{mission}  [scope: business:command-center:read]', hidden: true },
             'work-feed': { method: 'GET', path: '/command-centers/:slug/work-feed', summary: 'GET /command-centers/{slug}/work-feed  [scope: business:command-center:read]' },
             'performance-competencies': { method: 'GET', path: '/command-centers/:slug/performance/competencies', summary: 'GET /command-centers/{slug}/performance/competencies  [scope: business:performance:read]' },
             'performance-templates': { method: 'GET', path: '/command-centers/:slug/performance/templates', summary: 'GET /command-centers/{slug}/performance/templates  [scope: business:performance:read]' },
             reviews: { method: 'GET', path: '/command-centers/:slug/performance/reviews', summary: 'GET /command-centers/{slug}/performance/reviews  [scope: business:performance:read]' },
-            'reviews-2': { method: 'GET', path: '/command-centers/:slug/performance/reviews/:review', summary: 'GET /command-centers/{slug}/performance/reviews/{review}  [scope: business:performance:read]' },
+            review: { method: 'GET', path: '/command-centers/:slug/performance/reviews/:review', summary: 'GET /command-centers/{slug}/performance/reviews/{review}  [scope: business:performance:read]' },
+            'reviews-2': { method: 'GET', path: '/command-centers/:slug/performance/reviews/:review', summary: 'GET /command-centers/{slug}/performance/reviews/{review}  [scope: business:performance:read]', hidden: true },
             'performance-subjects-rollup': { method: 'GET', path: '/command-centers/:slug/performance/subjects/:subject/rollup', summary: 'GET /command-centers/{slug}/performance/subjects/{subject}/rollup  [scope: business:performance:read]' },
             'performance-plans': { method: 'GET', path: '/command-centers/:slug/performance/plans', summary: 'GET /command-centers/{slug}/performance/plans  [scope: business:performance:read]' },
         },
@@ -401,6 +413,7 @@ export const RESOURCES = {
     'mini-games': {
         summary: 'mini games (v1)',
         commands: {
+            list: { method: 'GET', path: '/mini-games', summary: 'GET /mini-games — catalog of playable games  [scope: games:mini-games:read]' },
             plays: { method: 'GET', path: '/mini-games/plays', summary: 'GET /mini-games/plays  [scope: games:mini-games:read]' },
         },
     },
@@ -415,8 +428,10 @@ export const RESOURCES = {
         commands: {
             collections: { method: 'GET', path: '/nft/collections', summary: 'GET /nft/collections  [scope: nft:collections:read]' },
             assets: { method: 'GET', path: '/nft/assets', summary: 'GET /nft/assets  [scope: nft:assets:read]' },
-            'collections-2': { method: 'GET', path: '/nft/collections/:collection', summary: 'GET /nft/collections/{collection}  [scope: nft:collections:read]' },
-            'assets-2': { method: 'GET', path: '/nft/assets/:asset', summary: 'GET /nft/assets/{asset}  [scope: nft:assets:read]' },
+            collection: { method: 'GET', path: '/nft/collections/:collection', summary: 'GET /nft/collections/{collection}  [scope: nft:collections:read]' },
+            'collections-2': { method: 'GET', path: '/nft/collections/:collection', summary: 'GET /nft/collections/{collection}  [scope: nft:collections:read]', hidden: true },
+            asset: { method: 'GET', path: '/nft/assets/:asset', summary: 'GET /nft/assets/{asset}  [scope: nft:assets:read]' },
+            'assets-2': { method: 'GET', path: '/nft/assets/:asset', summary: 'GET /nft/assets/{asset}  [scope: nft:assets:read]', hidden: true },
         },
     },
     openflix: {
@@ -424,8 +439,10 @@ export const RESOURCES = {
         commands: {
             movies: { method: 'GET', path: '/openflix/movies', summary: 'GET /openflix/movies  [scope: media:openflix:read]' },
             series: { method: 'GET', path: '/openflix/series', summary: 'GET /openflix/series  [scope: media:openflix:read]' },
-            'movies-2': { method: 'GET', path: '/openflix/movies/:movie', summary: 'GET /openflix/movies/{movie}  [scope: media:openflix:read]' },
-            'series-2': { method: 'GET', path: '/openflix/series/:series', summary: 'GET /openflix/series/{series}  [scope: media:openflix:read]' },
+            movie: { method: 'GET', path: '/openflix/movies/:movie', summary: 'GET /openflix/movies/{movie}  [scope: media:openflix:read]' },
+            'movies-2': { method: 'GET', path: '/openflix/movies/:movie', summary: 'GET /openflix/movies/{movie}  [scope: media:openflix:read]', hidden: true },
+            'series-show': { method: 'GET', path: '/openflix/series/:series', summary: 'GET /openflix/series/{series}  [scope: media:openflix:read]' },
+            'series-2': { method: 'GET', path: '/openflix/series/:series', summary: 'GET /openflix/series/{series}  [scope: media:openflix:read]', hidden: true },
         },
     },
     livestreams: {
@@ -453,7 +470,8 @@ export const RESOURCES = {
         summary: 'print (v1)',
         commands: {
             'minimum-quantities': { method: 'GET', path: '/print/minimum-quantities', summary: 'GET /print/minimum-quantities  [scope: print:fulfillment:read]' },
-            'minimum-quantities-2': { method: 'GET', path: '/print/minimum-quantities/:productTypeId', summary: 'GET /print/minimum-quantities/{productTypeId}  [scope: print:fulfillment:read]' },
+            get: { method: 'GET', path: '/print/minimum-quantities/:productTypeId', summary: 'GET /print/minimum-quantities/{productTypeId}  [scope: print:fulfillment:read]' },
+            'minimum-quantities-2': { method: 'GET', path: '/print/minimum-quantities/:productTypeId', summary: 'GET /print/minimum-quantities/{productTypeId}  [scope: print:fulfillment:read]', hidden: true },
         },
     },
     fulfillment: {
@@ -489,6 +507,7 @@ export const RESOURCES = {
         summary: 'policies (v1)',
         commands: {
             list: { method: 'GET', path: '/policies', summary: 'GET /policies  [scope: business:policies:read]' },
+            get: { method: 'GET', path: '/policies/:id', summary: 'GET /policies/{id}  [scope: business:policies:read]' },
         },
     },
     meetups: {
@@ -513,7 +532,8 @@ export const RESOURCES = {
         summary: 'vms communities (v1)',
         commands: {
             passes: { method: 'GET', path: '/vms/communities/:communitySlug/passes', summary: 'GET /vms/communities/{communitySlug}/passes  [scope: vms:passes:read]' },
-            'passes-2': { method: 'GET', path: '/vms/communities/:communitySlug/passes/:pass', summary: 'GET /vms/communities/{communitySlug}/passes/{pass}  [scope: vms:passes:read]' },
+            pass: { method: 'GET', path: '/vms/communities/:communitySlug/passes/:pass', summary: 'GET /vms/communities/{communitySlug}/passes/{pass}  [scope: vms:passes:read]' },
+            'passes-2': { method: 'GET', path: '/vms/communities/:communitySlug/passes/:pass', summary: 'GET /vms/communities/{communitySlug}/passes/{pass}  [scope: vms:passes:read]', hidden: true },
             'create-passes': { method: 'POST', path: '/vms/communities/:communitySlug/passes', summary: 'POST /vms/communities/{communitySlug}/passes  [scope: vms:passes:write]' },
             'delete-passes': { method: 'DELETE', path: '/vms/communities/:communitySlug/passes/:pass', summary: 'DELETE /vms/communities/{communitySlug}/passes/{pass}  [scope: vms:passes:write]' },
             'gate-events': { method: 'GET', path: '/vms/communities/:communitySlug/gate-events', summary: 'GET /vms/communities/{communitySlug}/gate-events  [scope: vms:events:read]' },
@@ -521,9 +541,11 @@ export const RESOURCES = {
             residents: { method: 'GET', path: '/vms/communities/:communitySlug/residents', summary: 'GET /vms/communities/{communitySlug}/residents  [scope: vms:residents:read]' },
             'create-broadcasts': { method: 'POST', path: '/vms/communities/:communitySlug/broadcasts', summary: 'POST /vms/communities/{communitySlug}/broadcasts  [scope: vms:broadcasts:write]' },
             gates: { method: 'GET', path: '/vms/communities/:communitySlug/gates', summary: 'GET /vms/communities/{communitySlug}/gates  [scope: vms:gates:read]' },
-            'gates-2': { method: 'GET', path: '/vms/communities/:communitySlug/gates/:gate', summary: 'GET /vms/communities/{communitySlug}/gates/{gate}  [scope: vms:gates:read]' },
+            gate: { method: 'GET', path: '/vms/communities/:communitySlug/gates/:gate', summary: 'GET /vms/communities/{communitySlug}/gates/{gate}  [scope: vms:gates:read]' },
+            'gates-2': { method: 'GET', path: '/vms/communities/:communitySlug/gates/:gate', summary: 'GET /vms/communities/{communitySlug}/gates/{gate}  [scope: vms:gates:read]', hidden: true },
             relays: { method: 'GET', path: '/vms/communities/:communitySlug/relays', summary: 'GET /vms/communities/{communitySlug}/relays  [scope: vms:relays:read]' },
-            'relays-2': { method: 'GET', path: '/vms/communities/:communitySlug/relays/:relay', summary: 'GET /vms/communities/{communitySlug}/relays/{relay}  [scope: vms:relays:read]' },
+            relay: { method: 'GET', path: '/vms/communities/:communitySlug/relays/:relay', summary: 'GET /vms/communities/{communitySlug}/relays/{relay}  [scope: vms:relays:read]' },
+            'relays-2': { method: 'GET', path: '/vms/communities/:communitySlug/relays/:relay', summary: 'GET /vms/communities/{communitySlug}/relays/{relay}  [scope: vms:relays:read]', hidden: true },
             fire: { method: 'POST', path: '/vms/communities/:communitySlug/relays/:relay/fire', summary: 'POST /vms/communities/{communitySlug}/relays/{relay}/fire  [scope: vms:relays:fire]' },
             'parking-permits': { method: 'GET', path: '/vms/communities/:communitySlug/parking/permits', summary: 'GET /vms/communities/{communitySlug}/parking/permits  [scope: vms:permits:read]' },
             'parking-allocations': { method: 'GET', path: '/vms/communities/:communitySlug/parking/allocations', summary: 'GET /vms/communities/{communitySlug}/parking/allocations  [scope: vms:permits:read]' },
@@ -537,19 +559,22 @@ export const RESOURCES = {
             'backup-snapshot': { method: 'GET', path: '/vms/communities/:communitySlug/backup/snapshot', summary: 'GET /vms/communities/{communitySlug}/backup/snapshot  [scope: vms:failsafe:sync]' },
             'create-backup-relay-fire': { method: 'POST', path: '/vms/communities/:communitySlug/backup/relay-fire', summary: 'POST /vms/communities/{communitySlug}/backup/relay-fire  [scope: vms:failsafe:sync]' },
             'create-backup-visitor-verification': { method: 'POST', path: '/vms/communities/:communitySlug/backup/visitor-verification', summary: 'POST /vms/communities/{communitySlug}/backup/visitor-verification  [scope: vms:failsafe:sync]' },
-            'residents-2': { method: 'GET', path: '/vms/communities/:communitySlug/residents/:resident', summary: 'GET /vms/communities/{communitySlug}/residents/{resident}  [scope: vms:residents:read]' },
+            resident: { method: 'GET', path: '/vms/communities/:communitySlug/residents/:resident', summary: 'GET /vms/communities/{communitySlug}/residents/{resident}  [scope: vms:residents:read]' },
+            'residents-2': { method: 'GET', path: '/vms/communities/:communitySlug/residents/:resident', summary: 'GET /vms/communities/{communitySlug}/residents/{resident}  [scope: vms:residents:read]', hidden: true },
         },
     },
     goals: {
         summary: 'goals (v1)',
         commands: {
             list: { method: 'GET', path: '/goals', summary: 'GET /goals  [scope: goals:read]' },
+            get: { method: 'GET', path: '/goals/:goal', summary: 'GET /goals/{goal}  [scope: goals:read]' },
         },
     },
     epics: {
         summary: 'epics (v1)',
         commands: {
             list: { method: 'GET', path: '/epics', summary: 'GET /epics  [scope: goals:read]' },
+            get: { method: 'GET', path: '/epics/:epic', summary: 'GET /epics/{epic}  [scope: goals:read]' },
         },
     },
     'professional-profile': {
@@ -684,12 +709,21 @@ export const RESOURCES = {
         summary: 'kits (v1)',
         commands: {
             list: { method: 'GET', path: '/kits', summary: 'GET /kits  [scope: kits:read]' },
+            get: { method: 'GET', path: '/kits/:uuid', summary: 'GET /kits/{uuid}  [scope: kits:read]' },
         },
     },
     'business-dna': {
         summary: 'business dna (v1)',
         commands: {
             list: { method: 'GET', path: '/business/dna', summary: 'GET /business/dna  [scope: business:dna:read]' },
+            get: { method: 'GET', path: '/business/dna/:id', summary: 'GET /business/dna/{id}  [scope: business:dna:read]' },
+        },
+    },
+    'business-succession': {
+        summary: 'business succession planning (v1, read-only)',
+        commands: {
+            list: { method: 'GET', path: '/business/succession', summary: 'GET /business/succession  [scope: business:succession:read]' },
+            get: { method: 'GET', path: '/business/succession/:id', summary: 'GET /business/succession/{id}  [scope: business:succession:read]' },
         },
     },
     'business-plan': {
@@ -719,12 +753,14 @@ export const RESOURCES = {
         summary: 'funnels (v1)',
         commands: {
             list: { method: 'GET', path: '/funnels', summary: 'GET /funnels  [scope: funnels:read]' },
+            get: { method: 'GET', path: '/funnels/:uuid', summary: 'GET /funnels/{uuid}  [scope: funnels:read]' },
         },
     },
     'ad-simulations': {
         summary: 'ad simulations (v1)',
         commands: {
             list: { method: 'GET', path: '/ad-simulations', summary: 'GET /ad-simulations  [scope: business:ad-simulations:read]' },
+            get: { method: 'GET', path: '/ad-simulations/:id', summary: 'GET /ad-simulations/{id}  [scope: business:ad-simulations:read]' },
         },
     },
     sites: {
@@ -733,7 +769,8 @@ export const RESOURCES = {
             'store-locations': { method: 'GET', path: '/sites/:token/store-locations', summary: 'GET /sites/{token}/store-locations' },
             products: { method: 'GET', path: '/sites/:token/products', summary: 'GET /sites/{token}/products' },
             search: { method: 'GET', path: '/sites/:token/products/search', summary: 'GET /sites/{token}/products/search' },
-            'products-2': { method: 'GET', path: '/sites/:token/products/:slug', summary: 'GET /sites/{token}/products/{slug}' },
+            product: { method: 'GET', path: '/sites/:token/products/:slug', summary: 'GET /sites/{token}/products/{slug}' },
+            'products-2': { method: 'GET', path: '/sites/:token/products/:slug', summary: 'GET /sites/{token}/products/{slug}', hidden: true },
             related: { method: 'GET', path: '/sites/:token/products/:slug/related', summary: 'GET /sites/{token}/products/{slug}/related' },
             reviews: { method: 'GET', path: '/sites/:token/products/:slug/reviews', summary: 'GET /sites/{token}/products/{slug}/reviews' },
             collections: { method: 'GET', path: '/sites/:token/collections', summary: 'GET /sites/{token}/collections' },
@@ -750,6 +787,7 @@ export const RESOURCES = {
             'create-checkout-process': { method: 'POST', path: '/sites/:token/checkout/process', summary: 'POST /sites/{token}/checkout/process' },
             orders: { method: 'GET', path: '/sites/:token/orders/:number', summary: 'GET /sites/{token}/orders/{number}' },
             'blog-articles': { method: 'GET', path: '/sites/:token/blog-articles', summary: 'GET /sites/{token}/blog-articles' },
+            visitor: { method: 'GET', path: '/sites/:token/visitor', summary: 'GET /sites/{token}/visitor' },
             'create-contact-submissions': { method: 'POST', path: '/sites/:token/contact-submissions', summary: 'POST /sites/{token}/contact-submissions' },
         },
     },
@@ -803,7 +841,7 @@ export const WEB = {
     webinars: { hub: '/webinars', open: '/webinars/:slug?', openSummary: 'Open webinars (or one webinar by slug) in your browser' },
     kits: { hub: '/kits', open: '/kits', openSummary: 'Open your kits in your browser (kit records carry a public_url landing link)' },
     courses: { hub: '/courses', label: 'Learn', open: '/courses/:slug?', openSummary: 'Open courses (or one course by slug) in your browser' },
-    smartboards: { hub: '/smartboards', item: (r) => (r.uuid ? `/smartboards/${r.uuid}` : null), open: '/smartboards/:smartboard?', openSummary: 'Open a smartboard by uuid (or the hub) in your browser' },
+    smartboards: { hub: '/smartboards', item: (r) => (r.uuid ? `/smartboards/${r.uuid}` : null), open: '/smartboards/:uuid?', openSummary: 'Open a smartboard by uuid (or the hub) in your browser' },
     kanbans: { hub: '/kanbans', item: (r) => (r.uuid ? `/kanbans/${r.uuid}` : null), open: '/kanbans/:kanban?', openSummary: 'Open a kanban board by uuid (or the hub) in your browser' },
     listings: { hub: '/listings', item: (r) => (r.uuid ? `/listing/${r.uuid}` : null), open: '/listings', openSummary: 'Open listings in your browser' },
     meetups: { hub: '/events', open: '/events', openSummary: 'Open events/meetups in your browser' },

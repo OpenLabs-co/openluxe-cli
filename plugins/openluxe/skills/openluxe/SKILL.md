@@ -5,7 +5,7 @@ description: Drive the OpenLuxe platform — CRM contacts/tasks/deals, real-esta
 
 # OpenLuxe for AI agents
 
-OpenLuxe is an all-in-one business platform (CRM, real-estate listings, e-commerce + warehouse fulfillment, business ERP with a real general ledger, contracts/escrow, communities, webinars, kits, AI generation). The public **v1 API** exposes ~317 capabilities; the CLI mirrors 100% of them, so anything the API can do, you can do from a shell.
+OpenLuxe is an all-in-one business platform (CRM, real-estate listings, e-commerce + warehouse fulfillment, business ERP with a real general ledger, contracts/escrow, communities, webinars, kits, AI generation). The public **v1 API** exposes ~323 capabilities; the CLI mirrors 100% of them, so anything the API can do, you can do from a shell.
 
 ## Pick a surface
 
@@ -36,7 +36,7 @@ Two account-level gates can block every call until a HUMAN acts in a browser —
 ```
 openluxe                          # all command groups
 openluxe <resource>               # commands for one resource (method, path, scope)
-openluxe manifest                 # ALL ~318 typed commands as JSON — start here
+openluxe manifest                 # ALL ~333 typed commands as JSON — start here
 openluxe describe <resource> <command>   # input/output schema for one command
 openluxe describe POST /notes            # same, for any raw endpoint
 ```

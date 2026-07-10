@@ -221,10 +221,52 @@ brand hub lives at `/open-creative/brand-hub/...`; invoices got the tokenized
 Still skipped: mini-game plays' per-game URL (needs a `game` eager-load),
 store products (needs store slug relation).
 
-**Open follow-ups**: `docs/api/response-examples.json` still shows the old
-raw-paginator smartboards example (regenerate via
-`CaptureResponseExamplesCommand`); P1 games-catalog endpoint; P2 items
-(parity regen 318→329, `-2` command renames, TTY tables).
+**P1/P2 follow-ups closed (2026-07-10, CLI v0.8.1 + main repo develop)**:
+- `mini-games plays` and `store products` now carry `public_url` (the
+  eager-load concern was real but cheap — one extra query per page/record,
+  `->with('miniGame:id,slug')` / `->with('store:id,slug')`, not N+1).
+- New `GET /api/v1/mini-games` catalog endpoint (`MiniGameResource`, reuses
+  the `games:mini-games:read` scope) + CLI `mini-games list`.
+- `docs/api/response-examples.json` hand-corrected for smartboards (envelope
+  + `public_url`) and the two mini-games endpoints — surgical text edits, not
+  a full `CaptureResponseExamplesCommand` run (that command has no per-endpoint
+  scope option; regenerating all ~350 would touch far more than this fix
+  needed and risk an oversized, hard-to-review diff against a live account).
+- Full API↔CLI parity closed and machine-verified: the main repo's
+  `scripts/export-cli-surface.mjs` (which the CLI's own `resources.js`
+  docstring pointed at) + `php artisan api:surface-audit` were used instead of
+  hand-diffing routes — **323/323 (100%) on both CLI and MCP axes**. This
+  caught real gaps my own audit table missed: a whole `reachverce` campaigns
+  resource, a `business-succession` resource, `sites visitor`, and 7 missing
+  `get` commands on resources that only had `list` (ad-simulations,
+  business-dna, epics, funnels, goals, kits, policies).
+- Investigated and deliberately excluded: `/api/v1/workflows/*` (17 routes)
+  and `/mcp` looked like public API surface from the raw route table but
+  aren't — `workflows` is the SPA's own session-authed (`web`+`auth:sanctum`)
+  workflow-builder feature nested in `routes/api.php` under a prefix that
+  happens to start with `v1/`, not the PAT-authenticated `routes/api-v1.php`;
+  a CLI bearer token literally cannot call it. `/mcp` is the hosted MCP
+  JSON-RPC transport, not a REST resource. The PHP coverage service already
+  excludes both from its public-capabilities registry, confirming the read.
+- The 13 auto-generated `-2` command name collisions (F5) renamed to clear
+  singular names (`nft assets-2`→`asset`, `openflix movies-2`→`movie`, …),
+  old names kept as hidden aliases (still dispatchable, absent from help/
+  manifest/MCP discovery) so nothing already scripted against them breaks.
+
+**Still open**: TTY human-readable list tables (P2, deliberate scope — piped/
+agent JSON output must stay untouched, this is additive polish only); the
+pre-existing `store.products` **docs** gap in `PUBLIC_API_V1.md` predates this
+audit and wasn't introduced by it, left as tracked debt rather than expanding
+scope. Both discovered incidentally by running the *existing* coverage tool
+rather than my own manual diffing — worth remembering: check for a project's
+own audit tooling before hand-rolling one.
+
+**Also noticed, unrelated, not fixed**: `openluxe describe sites visitor` 404s
+— the live `/developers/reference/schema` generator (`DevelopersController::
+referenceSchema`, main repo) doesn't index `GET /sites/{token}/visitor` even
+though the route itself works fine and is now a typed CLI command. This is a
+gap in the reference-schema route-discovery logic, not something this audit
+touched or introduced — flagged for whoever owns that generator next.
 
 ## Verification checklist (when implementing)
 - [ ] `openluxe mini-games plays` piped → byte-identical JSON to today.

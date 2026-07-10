@@ -38,7 +38,7 @@ function endpointCatalog() {
     const rows = [];
     for (const [resource, def] of Object.entries(RESOURCES)) {
         for (const [command, spec] of Object.entries(def.commands)) {
-            if (spec.kind === 'web') continue; // CLI-local browser shortcuts, not API endpoints
+            if (spec.kind === 'web' || spec.hidden) continue; // browser shortcuts + legacy aliases stay off the discovery surface
             rows.push({ resource, command, method: spec.method, path: spec.path, summary: spec.summary || null });
         }
     }

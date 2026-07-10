@@ -123,7 +123,7 @@ commands grow three output flags:
 ```bash
 openluxe mini-games open            # opens https://openluxe.co/mini-games
 openluxe mini-games open wordle     # …/mini-games/wordle
-openluxe smartboards open 42        # …/smartboards/42
+openluxe smartboards open <uuid>    # …/smartboards/<uuid> (smartboards bind by uuid, not id)
 openluxe contacts get 42 --web      # print just the record's web URL
 openluxe contacts get 42 --open     # print the JSON AND launch the page
 openluxe kits list --json           # suppress the ↗ link hint

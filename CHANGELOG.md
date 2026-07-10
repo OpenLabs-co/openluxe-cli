@@ -3,6 +3,33 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.1]
+
+### Added
+- 14 new typed commands closing the CLI ⇄ v1 API parity gap found while
+  finishing the human/agent UX audit: `ad-simulations get`, `business-dna
+  get`, a new `business-succession` resource (`list`/`get`), `epics get`,
+  `funnels get`, `goals get`, `kits get`, `policies get`, a new `reachverce`
+  resource (`list`/`get`/`recipients`/`events`), `sites visitor`, and
+  `mini-games list` (catalog of playable games — new on the API side too).
+  `/api/v1/workflows/*` and `/mcp` were investigated and correctly excluded:
+  the former is the SPA's internal session-authed workflow builder sharing a
+  URL prefix by coincidence, not part of the PAT-authenticated public API;
+  the latter is the hosted MCP JSON-RPC transport, not a REST resource.
+- Back-compat aliases for the 13 auto-generated `-2`-suffixed command names
+  (e.g. `nft assets-2` → `nft asset`, `openflix series-2` → `openflix
+  series-show`) — the old names still dispatch, just hidden from
+  `openluxe <resource>` help so there's one obvious name per command.
+
+### Changed
+- `smartboards get`/`smartboards open` now use `:uuid` (matching the actual
+  route binding) instead of the placeholder `:smartboard` param name.
+- `manifest` and MCP `openluxe_list_endpoints` exclude hidden legacy aliases
+  (still fully dispatchable, just not listed twice on the discovery surface).
+- CLI ⇄ v1 API parity is machine-verified via the main repo's
+  `php artisan api:surface-audit` — 323/323 (100%) on both the CLI and MCP
+  axes as of this release.
+
 ## [0.8.0]
 
 ### Added
