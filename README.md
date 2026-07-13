@@ -1,8 +1,63 @@
 # OpenLuxe CLI
 
-The official command-line client for the OpenLuxe v1 API. Built for humans
-and for terminal AI agents (Claude Code, etc.) — sign in once with your
-OpenLuxe web account, then drive the whole API from the shell.
+One credential. One CLI. **119 apps** — CRM, ERP, real estate, e-commerce,
+property management, communities, and more — plus **352 public API
+endpoints**, all reachable from your terminal or, more to the point, from
+your AI agent's tool-use loop.
+
+## Why this exists
+
+Every other integration your agent uses means another account, another
+secret to store, another bespoke tool it has to learn — and more tokens
+spent describing tools it half-understands. OpenLuxe is one platform, so
+it's **one login** and a small, composable tool surface instead of sixty.
+
+That surface is deliberately *lean* rather than one tool per endpoint —
+`openluxe_list_endpoints` to discover, `openluxe_api_request` to call any of
+it, plus a handful of typed helpers for the things agents do most. Fewer,
+better tools means fewer tokens spent on tool definitions and fewer turns
+spent figuring out which one to call.
+
+### Measured, not claimed
+
+We didn't want to just assert an efficiency number, so we built a real
+benchmark harness: live calls to real models (Grok 4.3, Gemini 3.5 Flash),
+real per-turn token accounting from each provider's own usage response
+(never estimated), and task success verified by reading the record back from
+the API afterward — never by trusting the model's self-report. It compares
+this CLI's shipped MCP tool surface against a naive one-tool-per-endpoint
+design, an agent integrating cold from scratch, and a real external
+competitor (HubSpot, free tier), on the same tasks:
+
+- **9.2x** fewer tokens than one tool per endpoint
+- **2.2x** fewer tokens than an agent integrating from scratch
+- **1.5x** fewer tokens than HubSpot's own API, same task
+- **100%** task pass rate, vs. **70%** for HubSpot on the same task set
+
+Averaged across both models on the portable task set (the tasks every
+architecture, including HubSpot, can attempt). Full methodology, honest
+caveats (including where the comparison has real limits — a capped tool
+count, a documented HubSpot API quirk, one account and one time window), and
+every run browsable by CLI version:
+**https://openluxe.co/developers/benchmarks**
+
+## What's inside
+
+119 apps, spanning:
+
+| Category | Apps | Examples |
+|---|---|---|
+| Business | 27 | General ledger, fixed assets, procurement, inventory, manufacturing, payroll, org chart, property management, business plans, compliance |
+| Creative | 17 | AI image/video/presentation/website generation, brand hub, Brickverce spreadsheets, design chat |
+| AI Agents | 11 | Alfred, Apollo, Atticus, Odysseus, Eva, Ace, and the workflow/harness system that drives them |
+| CRM | 9 | Contacts, pipeline, sequences, deal flow, cultural intelligence, touchpoint auto-logging |
+| Real Estate | 9 | Listings, farm campaigns, open houses, MLS search, agreements |
+| Communities, Games, Marketplace, Learning, Finance, Escrow | 20+ | — |
+
+Every endpoint is typed and documented — `openluxe describe <resource>
+<command>` (or `openluxe describe <METHOD> <path>`) prints the exact
+params/body/response schema before you call it, so an agent never has to
+guess a shape.
 
 ## Install
 

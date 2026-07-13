@@ -1,7 +1,7 @@
 {
   "name": "@openluxeco/cli",
-  "version": "0.8.1",
-  "description": "Official OpenLuxe command-line client — drive the OpenLuxe v1 API from your terminal or an AI agent.",
+  "version": "0.8.2",
+  "description": "Official OpenLuxe CLI + MCP server — one credential, 119 apps (CRM, ERP, real estate, commerce, more), 352 API endpoints, from your terminal or your AI agent's tool-use loop.",
   "type": "module",
   "bin": {
     "openluxe": "bin/openluxe.js"
@@ -34,7 +34,12 @@
     "api",
     "real-estate",
     "crm",
-    "ai-agent"
+    "ai-agent",
+    "mcp",
+    "model-context-protocol",
+    "agent-tools",
+    "claude-code",
+    "ai-agents"
   ],
   "license": "MIT",
   "publishConfig": {

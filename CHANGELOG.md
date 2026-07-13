@@ -3,6 +3,21 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.2]
+
+### Changed
+- README rewritten to lead with why the CLI/MCP surface exists and what it's
+  worth: a "Why this exists" intro, a "Measured, not claimed" section citing
+  the real openluxe-bench results (9.2x fewer tokens than one tool per
+  endpoint, 2.2x fewer than a cold integration, 1.5x fewer than HubSpot's own
+  API on the same task, 100% vs. 70% task pass rate) with a link to the
+  versioned public results at https://openluxe.co/developers/benchmarks, and
+  a "What's inside" table of the 119-app / 352-endpoint registry by category.
+  No code changes.
+- `package.json` `description` and `keywords` sharpened for npm search
+  discoverability (added `mcp`, `model-context-protocol`, `agent-tools`,
+  `claude-code`, `ai-agents`).
+
 ## [0.8.1]
 
 ### Added
