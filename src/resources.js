@@ -13,6 +13,17 @@
  * (regenerate via the main repo's scripts + `openluxe manifest`).
  */
 export const RESOURCES = {
+    delegations: {
+        summary: 'BYOA agent delegations — fulfill generation requests from the OpenLuxe generator apps with YOUR OWN AI (zero platform credits). See also: openluxe agent listen',
+        commands: {
+            list: { method: 'GET', path: '/agent/delegations', summary: 'List your delegations (--status pending|claimed|open|completed|failed, --feature key, --wait 25 long-polls)  [scope: agent:delegations:read]' },
+            get: { method: 'GET', path: '/agent/delegations/:uuid', summary: 'One delegation incl. spec + result contract  [scope: agent:delegations:read]' },
+            create: { method: 'POST', path: '/agent/delegations', summary: "Direct-create from the terminal (-d '{\"feature\":\"email_template\",\"prompt\":\"…\"}') — auto-claims for this token  [scope: agent:delegations:write]" },
+            claim: { method: 'POST', path: '/agent/delegations/:uuid/claim', summary: 'Claim (token-keyed 15-min lease; re-claim refreshes)  [scope: agent:delegations:write]' },
+            submit: { method: 'POST', path: '/agent/delegations/:uuid/result', summary: "Submit the finished content (-d '<json>' per spec.result_contract; idempotent)  [scope: agent:delegations:write]" },
+            fail: { method: 'POST', path: '/agent/delegations/:uuid/fail', summary: 'Report you cannot fulfill it (--reason "…")  [scope: agent:delegations:write]' },
+        },
+    },
     contacts: {
         summary: 'CRM contacts',
         commands: {

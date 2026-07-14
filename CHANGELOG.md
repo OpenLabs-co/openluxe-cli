@@ -3,6 +3,26 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.0]
+
+### Added
+- **BYOA — be the generation engine.** The OpenLuxe generator apps (email
+  creator, sales presentations, website builder, print designer, ad maker)
+  can now delegate generation to YOUR agent instead of the platform AI, for
+  zero platform credits:
+  - `openluxe agent listen [--feature <key>] [--timeout <secs>] [--no-claim]`
+    — long-polls for the next delegated generation request, claims it
+    (token-keyed 15-min lease), prints the full work order JSON, exits.
+  - `openluxe delegations …` typed commands: `list` / `get` / `create`
+    (direct-create + auto-claim) / `claim` / `submit` / `fail`
+    (scopes `agent:delegations:read|write`).
+  - `openluxe delegations upload <uuid> <file>` — multipart image upload for
+    a claimed delegation; results may only reference these returned URLs
+    (external image URLs are rejected server-side).
+- SKILL.md: a "BYOA — be the generation engine" recipe teaching host agents
+  the listen → generate per `spec.result_contract` → submit loop, the
+  sanitization contract, and the lease/expiry rules.
+
 ## [0.8.2]
 
 ### Changed

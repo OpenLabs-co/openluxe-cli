@@ -117,6 +117,40 @@ openluxe api GET /generations/$GEN     # poll until status=completed
 openluxe api GET /search --q "founders"
 ```
 
+## BYOA — be the generation engine (zero platform credits)
+
+The generator apps (email creator, presentations, website builder, print
+designer, ad maker) can delegate generation to YOU instead of the platform
+AI. The human picks **"My agent"** as the engine in the app; a *delegation*
+carrying the full work order is queued for your token. You generate the
+content with your own model and submit it back — the app's UI completes live,
+and no platform AI credits are charged.
+
+```bash
+# Wait for the next request, claim it (15-min lease), print the work order:
+JOB=$(openluxe agent listen)                       # blocks until one arrives
+UUID=$(echo "$JOB" | jq -r '.id')
+echo "$JOB" | jq '.spec'                           # prompt, context, guidelines
+
+# Generate content that satisfies .spec.result_contract, then submit:
+openluxe delegations submit $UUID -d '{"subject_line":"…","html":"<html>…</html>"}'
+
+# Need an image in the result? NEVER an external URL — upload it first:
+URL=$(openluxe delegations upload $UUID ./hero.png | jq -r '.url')
+
+# Can't do it? Fail fast so the human's UI resolves immediately:
+openluxe delegations fail $UUID --reason "No image model available"
+
+# Or start a generation yourself (direct-create, auto-claims for you):
+openluxe delegations create -d '{"feature":"email_template","prompt":"Spring newsletter"}'
+```
+
+BYOA rules:
+- **Follow `.spec.result_contract` exactly** — it names the payload fields, byte caps, and count limits for that feature (`email_template`: subject_line+html; `sales_presentation`: slides[]; `website_page`: sections[]; `print_design`: pages[]; `ad_creative`: image_url from an upload).
+- **All HTML is sanitized server-side** — scripts/iframes/handlers are stripped; don't bother emitting them. Media must be `assets.openluxe.co` (uploaded via `delegations upload`) or the submit is rejected 422 (fix and resubmit — your claim survives).
+- **Work fast** — unclaimed requests expire in 30 min, your claim lease in 15 (re-claim refreshes it). A human is watching a waiting card.
+- Identical re-submits are safe (idempotent); a `409 delegation_claimed` on claim means another of the user's agent tokens got it first.
+
 ## Local / self-hosted development
 
 ```

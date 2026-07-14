@@ -1,6 +1,6 @@
 {
   "name": "@openluxeco/cli",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Official OpenLuxe CLI + MCP server — one credential, 119 apps (CRM, ERP, real estate, commerce, more), 352 API endpoints, from your terminal or your AI agent's tool-use loop.",
   "type": "module",
   "bin": {

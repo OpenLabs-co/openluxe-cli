@@ -6,6 +6,7 @@ import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
 import { banner } from './banner.js';
 import { skillText, install as installSkill } from './skill.js';
+import * as agent from './agent.js';
 
 const C = {
     dim: (s) => `\x1b[2m${s}\x1b[0m`,
@@ -298,6 +299,10 @@ ${C.bold('BROWSER')}
 ${C.bold('AI / MCP')}
   mcp                       Run an MCP server over stdio (point Claude Code,
                             Cursor, etc. at this to drive OpenLuxe in chat)
+  agent listen              BYOA: wait for a delegated generation request from
+                            the generator apps, claim it, print the work order
+                            (fulfill with YOUR AI — zero platform credits)
+  delegations upload        Upload an image for a claimed delegation (multipart)
   skill install             Install the OpenLuxe agent skill into Claude Code
                             (--project for repo-local, --codex for ~/.codex/AGENTS.md)
   skill show                Print the agent skill (SKILL.md)
@@ -339,6 +344,26 @@ export async function run(argv) {
 
     // MCP server over stdio — point Claude Code / Cursor at `openluxe mcp`.
     if (cmd === 'mcp') return mcpServe();
+
+    // BYOA — be the generation engine for the OpenLuxe generator apps.
+    //   openluxe agent listen [--feature key] [--timeout secs] [--no-claim]
+    // waits for the next delegated generation request, claims it, prints
+    // the work order JSON; generate per spec.result_contract, then
+    //   openluxe delegations submit <uuid> -d '<result json>'
+    if (cmd === 'agent') {
+        const sub = rest[0];
+        const { flags } = parseArgs(rest.slice(1));
+        if (sub === 'listen') return agent.listen(flags);
+        return die('usage: openluxe agent listen [--feature <key>] [--timeout <secs>] [--no-claim]');
+    }
+
+    // Multipart image upload for a claimed delegation (the JSON-only typed
+    // commands can't carry files).
+    if (cmd === 'delegations' && rest[0] === 'upload') {
+        const [uuid, file] = rest.slice(1);
+        if (!uuid || !file) return die('usage: openluxe delegations upload <uuid> <file>');
+        return agent.upload(uuid, file);
+    }
 
     // The OpenLuxe agent skill — print it or install it into an AI agent.
     if (cmd === 'skill') {
