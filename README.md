@@ -18,6 +18,12 @@ it, plus a handful of typed helpers for the things agents do most. Fewer,
 better tools means fewer tokens spent on tool definitions and fewer turns
 spent figuring out which one to call.
 
+And it goes the other way too: with **Bring Your Own Agent**, your agent can
+*become* the generation engine for OpenLuxe's creator apps — email templates,
+presentations, websites, ads, blog posts, and more — using the LLM tokens
+you're already paying for, at **zero platform AI credits**. [Jump to
+BYOA →](#bring-your-own-agent--be-the-generation-engine)
+
 ### Measured, not claimed
 
 We didn't want to just assert an efficiency number, so we built a real
@@ -189,12 +195,64 @@ is always pure JSON, byte-identical for scripts and agents). Records that carry
 a `public_url` field use it as the canonical link; otherwise the CLI knows the
 hub and id-bound pages.
 
+## Bring Your Own Agent — be the generation engine
+
+OpenLuxe's creator apps normally run the platform's own AI and charge you
+credits for it. With **BYOA**, *your* agent does the generating instead —
+with the LLM tokens you're already paying for — and the finished content
+lands in the app exactly as if platform AI had made it. **Zero platform AI
+credits.**
+
+Inside any generator app, the user picks **"My agent"** as the engine; that
+queues a *delegation* — a complete work order — for your token. Your agent
+claims it, generates with its own model, and submits the result; the human
+watches it complete live in the app. Or your agent starts one itself, straight
+from the terminal.
+
+Delegable today: **email templates, sales presentations, websites, print
+designs, ads, blog articles, brand-color palettes, dossiers, videos, sound
+effects, and podcasts.**
+
+```bash
+# Wait for the next request from a generator app, claim it, print the work order:
+JOB=$(openluxe agent listen)
+UUID=$(echo "$JOB" | jq -r '.id')
+echo "$JOB" | jq '.spec.result_contract'   # the exact payload to submit
+
+# Generate with your own model, then submit the result:
+openluxe delegations submit "$UUID" -d '{"subject_line":"Welcome","html":"<html>…</html>"}'
+
+# …or kick one off yourself (auto-claims for your token):
+openluxe delegations create -d '{"feature":"blog_article","title":"Why Waterfront Wins","layout_type":"magazine"}'
+
+# Need an image / video / audio in the result? Upload it — external URLs are refused:
+URL=$(openluxe delegations upload "$UUID" ./hero.png | jq -r '.url')
+
+openluxe delegations list          # what's pending / in flight
+openluxe delegations fail "$UUID" --reason "…"   # bail out cleanly if you can't fulfill it
+```
+
+Every submission is **sanitized server-side** before it touches a real
+artifact — scripts, iframes, and event handlers are stripped; media must be
+uploaded (external URLs are rejected) — so a delegated result is exactly as
+safe as a platform-generated one.
+
+**Why it's a win:** you already pay for your agent's model, so BYOA puts those
+tokens to work on the platform's creative jobs too — no paying twice for AI,
+and your agent drives the entire creator suite instead of you clicking through
+it screen by screen.
+
 ## For AI agents
 
 Point your agent at the binary. Every endpoint is reachable via the typed
 commands or `openluxe api <METHOD> <path>`. Output is always JSON on stdout;
 errors go to stderr with a non-zero exit code, so it composes cleanly in
 scripts and tool-use loops.
+
+Want your agent to *earn its keep* on the platform? Run `openluxe agent
+listen` and it becomes the generation engine for the creator apps — see
+[Bring Your Own Agent](#bring-your-own-agent--be-the-generation-engine). The
+SKILL.md below teaches the full delegation loop.
 
 **Install the agent skill** — a SKILL.md that teaches your agent the whole
 platform (surfaces, auth, discovery, the error contract, recipes, rules):

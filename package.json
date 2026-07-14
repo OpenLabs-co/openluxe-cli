@@ -1,7 +1,7 @@
 {
   "name": "@openluxeco/cli",
-  "version": "0.9.0",
-  "description": "Official OpenLuxe CLI + MCP server — one credential, 119 apps (CRM, ERP, real estate, commerce, more), 352 API endpoints, from your terminal or your AI agent's tool-use loop.",
+  "version": "0.9.1",
+  "description": "Official OpenLuxe CLI + MCP server — one credential across 119 apps and 352 API endpoints, from your terminal or your AI agent's tool-use loop. Bring Your Own Agent: let your agent be the generation engine for the creator apps at zero platform AI credits.",
   "type": "module",
   "bin": {
     "openluxe": "bin/openluxe.js"
@@ -39,7 +39,12 @@
     "model-context-protocol",
     "agent-tools",
     "claude-code",
-    "ai-agents"
+    "ai-agents",
+    "byoa",
+    "bring-your-own-agent",
+    "agent-delegations",
+    "generation",
+    "ai-generation"
   ],
   "license": "MIT",
   "publishConfig": {

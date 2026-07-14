@@ -3,6 +3,18 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.1]
+
+### Changed
+- README now leads with **Bring Your Own Agent**: a dedicated section
+  explaining that your agent can be the generation engine for the creator
+  apps (email/presentations/websites/print/ads/blog/brand-colors/dossier/
+  video/sound-effects/podcasts) at zero platform AI credits, the `agent
+  listen` → generate → `delegations submit` loop, the upload path for media,
+  and the server-side sanitization guarantee — plus intro + "For AI agents"
+  cross-links and BYOA keywords for npm discoverability. Docs only; no code
+  change from 0.9.0.
+
 ## [0.9.0]
 
 ### Added
