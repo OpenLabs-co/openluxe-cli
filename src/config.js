@@ -14,13 +14,15 @@ const DEFAULT_BASE = process.env.OPENLUXE_API_URL || 'https://openluxe.co';
 
 export function load() {
     if (!existsSync(FILE)) {
-        return { base: DEFAULT_BASE, token: null, user: null, insecure: false };
+        // OPENLUXE_TOKEN lets credential-less environments (the Claude Desktop
+        // .mcpb extension, CI, containers) authenticate without `auth login`.
+        return { base: DEFAULT_BASE, token: process.env.OPENLUXE_TOKEN || null, user: null, insecure: false };
     }
     try {
         const data = JSON.parse(readFileSync(FILE, 'utf8'));
         return {
             base: process.env.OPENLUXE_API_URL || data.base || DEFAULT_BASE,
-            token: data.token || null,
+            token: process.env.OPENLUXE_TOKEN || data.token || null,
             user: data.user || null,
             // The remembered insecure opt-in is scoped to the base it was saved
             // for — pointing OPENLUXE_API_URL elsewhere must stay fully secure.

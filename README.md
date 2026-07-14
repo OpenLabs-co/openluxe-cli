@@ -324,6 +324,26 @@ surface and `openluxe_api_request` to call any of it, plus typed helpers
 remote MCP server at `https://openluxe.co/api/v1/mcp` (Bearer-authed with a
 `ol_itk_` token) for clients that speak Streamable HTTP directly.
 
+### Claude Desktop extension (one-click install)
+
+Prefer not to touch JSON config? Download the desktop extension
+(`openluxe-<version>.mcpb`) from the
+[GitHub releases](https://github.com/OpenLabs-co/openluxe-cli/releases),
+double-click it (or drag it into Claude Desktop → Settings → Extensions),
+and paste an API token from
+[openluxe.co/developers/tokens](https://openluxe.co/developers/tokens).
+Build it from source with `node scripts/build-mcpb.mjs`. The extension runs
+the same zero-dependency stdio server, authenticated via the `OPENLUXE_TOKEN`
+environment variable.
+
+### Connected app in claude.ai / ChatGPT / Grok / Perplexity / Le Chat
+
+Consumer chat apps connect to the hosted server with OAuth — no token or
+install at all. Add a custom connector pointing at
+`https://openluxe.co/api/v1/mcp`; the platform auto-discovers the OpenLuxe
+sign-in and consent flow. Full per-platform guide:
+[openluxe.co/connect](https://openluxe.co/connect).
+
 ## Credits
 
 AI-generating calls (`openluxe generate …`) cost credits at web-app parity. A

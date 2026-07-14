@@ -3,6 +3,18 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.1]
+
+### Added
+- **Claude Desktop extension (`.mcpb`).** `node scripts/build-mcpb.mjs` packs
+  the stdio MCP server into a one-click-install desktop extension
+  (`dist/openluxe-<version>.mcpb`, published as a GitHub release asset).
+  Claude Desktop prompts for an OpenLuxe API token (stored in the OS
+  keychain) — no JSON config, no `auth login`.
+- **`OPENLUXE_TOKEN` environment variable.** Overrides the stored credential
+  everywhere (CLI, `openluxe mcp`, the desktop extension) so credential-less
+  environments — extensions, CI, containers — can authenticate directly.
+
 ## [0.10.0]
 
 ### Added

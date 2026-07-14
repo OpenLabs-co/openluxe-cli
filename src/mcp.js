@@ -168,7 +168,7 @@ async function handle(msg) {
 export async function serve() {
     const { token, base } = load();
     if (!token) {
-        process.stderr.write('openluxe mcp: not signed in — run `openluxe auth login` first.\n');
+        process.stderr.write('openluxe mcp: not signed in — run `openluxe auth login` first (or set OPENLUXE_TOKEN).\n');
         process.exit(1);
     }
     process.stderr.write(`openluxe mcp server ready (${base}) — ${TOOLS.length} tools.\n`);
