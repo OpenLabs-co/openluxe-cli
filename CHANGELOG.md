@@ -3,6 +3,28 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0]
+
+### Added
+- **BYOA preview links.** A completed `delegations submit` now returns
+  `data.preview_url` — the finished asset's page in the app (email/blog/
+  presentation/website/ad editor, dossier viewer) or, for media
+  (video/sound/podcast), the direct CDN url. On a TTY the CLI prints
+  `↗ Preview: <url>` on stderr (piped stdout stays pure JSON), so from an
+  agent's chat you get a clickable link the moment the asset is ready.
+  `delegations get <uuid>` exposes `preview_url`/`public_url` on completed
+  rows too.
+- **BYOA edit mode — make changes, not just new things.** `delegations create`
+  accepts `"mode":"edit"` with a `target` (the id/uuid a prior result
+  returned) and `instructions`. The work order's `spec.current` carries the
+  asset's current content; you submit the complete revised version through the
+  same `result_contract`. Supported for `email_template`, `blog_article`, and
+  `dossier` (websites already revise one section at a time via a normal
+  `create` with `section_id`). Reuses the same server-side sanitized write
+  path — no new mutation surface.
+- SKILL.md: teaches relaying `preview_url` to the human and the `mode:edit`
+  revise loop.
+
 ## [0.9.1]
 
 ### Changed

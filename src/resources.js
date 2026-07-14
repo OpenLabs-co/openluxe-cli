@@ -14,13 +14,13 @@
  */
 export const RESOURCES = {
     delegations: {
-        summary: 'BYOA agent delegations — fulfill generation requests from the OpenLuxe generator apps with YOUR OWN AI (zero platform credits). See also: openluxe agent listen',
+        summary: 'BYOA agent delegations — be the generation engine for the OpenLuxe creator apps with YOUR OWN AI (zero platform credits): generate new assets OR revise existing ones (mode:edit), and get a clickable preview link back. See also: openluxe agent listen',
         commands: {
             list: { method: 'GET', path: '/agent/delegations', summary: 'List your delegations (--status pending|claimed|open|completed|failed, --feature key, --wait 25 long-polls)  [scope: agent:delegations:read]' },
             get: { method: 'GET', path: '/agent/delegations/:uuid', summary: 'One delegation incl. spec + result contract  [scope: agent:delegations:read]' },
-            create: { method: 'POST', path: '/agent/delegations', summary: "Direct-create from the terminal (-d '{\"feature\":\"email_template\",\"prompt\":\"…\"}') — auto-claims for this token  [scope: agent:delegations:write]" },
+            create: { method: 'POST', path: '/agent/delegations', summary: "Generate (-d '{\"feature\":\"email_template\",\"prompt\":\"…\"}') OR revise an existing asset (-d '{\"feature\":\"email_template\",\"mode\":\"edit\",\"target\":123,\"instructions\":\"…\"}') — auto-claims for this token  [scope: agent:delegations:write]" },
             claim: { method: 'POST', path: '/agent/delegations/:uuid/claim', summary: 'Claim (token-keyed 15-min lease; re-claim refreshes)  [scope: agent:delegations:write]' },
-            submit: { method: 'POST', path: '/agent/delegations/:uuid/result', summary: "Submit the finished content (-d '<json>' per spec.result_contract; idempotent)  [scope: agent:delegations:write]" },
+            submit: { method: 'POST', path: '/agent/delegations/:uuid/result', summary: "Submit the finished content (-d '<json>' per spec.result_contract); response carries a clickable preview_url; idempotent  [scope: agent:delegations:write]" },
             fail: { method: 'POST', path: '/agent/delegations/:uuid/fail', summary: 'Report you cannot fulfill it (--reason "…")  [scope: agent:delegations:write]' },
         },
     },
@@ -845,6 +845,11 @@ export const RESOURCES = {
  * JSON. Humans on a TTY get the link line on stderr.
  */
 export const WEB = {
+    // No hub/open — a delegation isn't a browsable resource. This entry only
+    // supplies the "Preview" verb so that when a completed delegation's
+    // response carries public_url (the finished artifact's page/CDN url), the
+    // submit/get hint reads "↗ Preview: <url>" instead of the generic "Open".
+    delegations: { label: 'Preview' },
     'mini-games': { hub: '/mini-games', label: 'Play', open: '/mini-games/:slug?', openSummary: 'Open the mini-games hub (or one game by slug) in your browser' },
     arena: { hub: '/arenas', label: 'Play', open: '/arenas', openSummary: 'Open the arena lobby in your browser' },
     openflix: { hub: '/openflix', label: 'Watch', open: '/openflix', openSummary: 'Open OpenFlix in your browser' },

@@ -119,12 +119,13 @@ openluxe api GET /search --q "founders"
 
 ## BYOA — be the generation engine (zero platform credits)
 
-The generator apps (email creator, presentations, website builder, print
-designer, ad maker) can delegate generation to YOU instead of the platform
-AI. The human picks **"My agent"** as the engine in the app; a *delegation*
-carrying the full work order is queued for your token. You generate the
-content with your own model and submit it back — the app's UI completes live,
-and no platform AI credits are charged.
+The generator apps can delegate generation to YOU instead of the platform AI —
+email templates, sales presentations, websites, print designs, ads, blog
+articles, brand-color palettes, dossiers, videos, sound effects, and podcasts.
+The human picks **"My agent"** as the engine in the app (or you direct-create);
+a *delegation* carrying the full work order is queued for your token. You
+generate the content with your own model and submit it back — the app's UI
+completes live, and no platform AI credits are charged.
 
 ```bash
 # Wait for the next request, claim it (15-min lease), print the work order:
@@ -132,8 +133,10 @@ JOB=$(openluxe agent listen)                       # blocks until one arrives
 UUID=$(echo "$JOB" | jq -r '.id')
 echo "$JOB" | jq '.spec'                           # prompt, context, guidelines
 
-# Generate content that satisfies .spec.result_contract, then submit:
-openluxe delegations submit $UUID -d '{"subject_line":"…","html":"<html>…</html>"}'
+# Generate content that satisfies .spec.result_contract, then submit.
+# The response carries a preview_url — the finished asset's web page (or CDN
+# media url). ALWAYS relay it to the human as a clickable link:
+openluxe delegations submit $UUID -d '{"subject_line":"…","html":"<html>…</html>"}' | jq -r '.data.preview_url'
 
 # Need an image in the result? NEVER an external URL — upload it first:
 URL=$(openluxe delegations upload $UUID ./hero.png | jq -r '.url')
@@ -141,12 +144,18 @@ URL=$(openluxe delegations upload $UUID ./hero.png | jq -r '.url')
 # Can't do it? Fail fast so the human's UI resolves immediately:
 openluxe delegations fail $UUID --reason "No image model available"
 
-# Or start a generation yourself (direct-create, auto-claims for you):
+# Start a generation yourself (direct-create, auto-claims for you):
 openluxe delegations create -d '{"feature":"email_template","prompt":"Spring newsletter"}'
+
+# MAKE CHANGES to an existing asset (mode:edit) — pass the id from a prior
+# result as "target"; the work order's spec.current holds the current content:
+openluxe delegations create -d '{"feature":"email_template","mode":"edit","target":123,"instructions":"Make the CTA more urgent and add a P.S."}'
 ```
 
 BYOA rules:
-- **Follow `.spec.result_contract` exactly** — it names the payload fields, byte caps, and count limits for that feature (`email_template`: subject_line+html; `sales_presentation`: slides[]; `website_page`: sections[]; `print_design`: pages[]; `ad_creative`: image_url from an upload).
+- **Hand the human the preview link.** Every completed submit returns `data.preview_url` (and `delegations get <uuid>` exposes it on completed rows). When you finish, tell the user what you made and give them the clickable `preview_url` so they can open it — that's the payoff of the whole loop. On a TTY the CLI also prints `↗ Preview: <url>` on stderr automatically.
+- **Revising, not just creating:** `mode:"edit"` targets an existing artifact (`target` = the id/uuid a prior create/preview result returned) and puts its current content in `spec.current` + the ask in `spec.instructions`. Return the COMPLETE revised content (not a diff) through the same `result_contract`. Supported for `email_template`, `blog_article`, `dossier`; for `website_page`, pass `section_id` to a normal `create` to regenerate one section. Features without an edit seam (media, brand_colors, ads, print, presentations) just regenerate.
+- **Follow `.spec.result_contract` exactly** — it names the payload fields, byte caps, and count limits for that feature (`email_template`: subject_line+html; `sales_presentation`: slides[]; `website_page`: sections[]; `print_design`: pages[]; `blog_article`: content_html; `brand_colors`: colors JSON; `dossier`: summary+body markdown; and media features — `ad_creative`/`video`/`sound_effect`/`podcast` — reference the url(s) you got from `delegations upload`).
 - **All HTML is sanitized server-side** — scripts/iframes/handlers are stripped; don't bother emitting them. Media must be `assets.openluxe.co` (uploaded via `delegations upload`) or the submit is rejected 422 (fix and resubmit — your claim survives).
 - **Work fast** — unclaimed requests expire in 30 min, your claim lease in 15 (re-claim refreshes it). A human is watching a waiting card.
 - Identical re-submits are safe (idempotent); a `409 delegation_claimed` on claim means another of the user's agent tokens got it first.

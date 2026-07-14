@@ -219,11 +219,15 @@ JOB=$(openluxe agent listen)
 UUID=$(echo "$JOB" | jq -r '.id')
 echo "$JOB" | jq '.spec.result_contract'   # the exact payload to submit
 
-# Generate with your own model, then submit the result:
-openluxe delegations submit "$UUID" -d '{"subject_line":"Welcome","html":"<html>…</html>"}'
+# Generate with your own model, then submit — the response hands you back a
+# clickable preview link to the finished asset:
+openluxe delegations submit "$UUID" -d '{"subject_line":"Welcome","html":"<html>…</html>"}' | jq -r '.data.preview_url'
 
 # …or kick one off yourself (auto-claims for your token):
 openluxe delegations create -d '{"feature":"blog_article","title":"Why Waterfront Wins","layout_type":"magazine"}'
+
+# MAKE CHANGES to an existing asset instead of generating a new one:
+openluxe delegations create -d '{"feature":"email_template","mode":"edit","target":123,"instructions":"Make the CTA more urgent and add a P.S."}'
 
 # Need an image / video / audio in the result? Upload it — external URLs are refused:
 URL=$(openluxe delegations upload "$UUID" ./hero.png | jq -r '.url')
@@ -231,6 +235,19 @@ URL=$(openluxe delegations upload "$UUID" ./hero.png | jq -r '.url')
 openluxe delegations list          # what's pending / in flight
 openluxe delegations fail "$UUID" --reason "…"   # bail out cleanly if you can't fulfill it
 ```
+
+**A preview link when it's done.** Every completed submit returns a
+`preview_url` — the finished asset's page in the app (or, for media, the direct
+CDN url). On a terminal the CLI also prints `↗ Preview: <url>` on stderr. So
+from your agent's chat you get a link to click the moment the asset is ready —
+no hunting for it in the app.
+
+**Make changes, not just new things.** Pass `"mode":"edit"` with the `target`
+id a prior result returned and your change `instructions`; the work order's
+`spec.current` carries the asset's current content, and you submit the complete
+revised version back through the same contract. Supported for email templates,
+blog articles, and dossiers today (websites revise a section at a time via a
+normal `create` with `section_id`).
 
 Every submission is **sanitized server-side** before it touches a real
 artifact — scripts, iframes, and event handlers are stripped; media must be
