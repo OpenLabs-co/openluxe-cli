@@ -15,6 +15,15 @@ const C = {
     red: (s) => `\x1b[31m${s}\x1b[0m`,
 };
 
+// Every one of these bin names runs this same CLI (see package.json `bin`), so
+// `ol mcp`, `luxe crm ...`, etc. are all equivalent to `openluxe`.
+const ALIASES = ['ol', 'luxe', 'openl', 'verce', 'ov', 'openverce'];
+// The name the user actually typed — so `ol --help` reads "ol", not "openluxe".
+const PROG = (() => {
+    const base = (process.argv[1] || '').split(/[\\/]/).pop().replace(/\.js$/, '');
+    return base && (base === 'openluxe' || ALIASES.includes(base)) ? base : 'openluxe';
+})();
+
 /**
  * Tokenize argv into { positionals, flags, body }.
  *   --key value | --key=value | --flag (boolean) | -d '<json>'
@@ -274,10 +283,11 @@ function topHelp() {
     // gets straight to the commands without paying for the art.
     if (process.stdout.isTTY) console.log(banner());
     console.log(`
-${C.bold('openluxe')} — OpenLuxe API command-line client
+${C.bold(PROG)} — OpenLuxe API command-line client
 
 ${C.bold('USAGE')}
-  openluxe <command> [args] [--flags] [-d '<json>']
+  ${PROG} <command> [args] [--flags] [-d '<json>']
+  ${C.dim(`aliases: ${ALIASES.join(', ')} (e.g. \`ol mcp\`, \`luxe crm contacts list\`)`)}
 
 ${C.bold('AUTH')}
   auth login                Sign in via your browser (device flow)

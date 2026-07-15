@@ -1,10 +1,16 @@
 {
   "name": "@openluxeco/cli",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Official OpenLuxe CLI + MCP server — one credential across 119 apps and 352 API endpoints, from your terminal or your AI agent's tool-use loop. Bring Your Own Agent: let your agent be the generation engine for the creator apps at zero platform AI credits.",
   "type": "module",
   "bin": {
-    "openluxe": "bin/openluxe.js"
+    "openluxe": "bin/openluxe.js",
+    "ol": "bin/openluxe.js",
+    "luxe": "bin/openluxe.js",
+    "openl": "bin/openluxe.js",
+    "verce": "bin/openluxe.js",
+    "ov": "bin/openluxe.js",
+    "openverce": "bin/openluxe.js"
   },
   "files": [
     "bin",
