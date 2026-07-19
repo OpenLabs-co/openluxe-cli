@@ -907,3 +907,168 @@ for (const [name, web] of Object.entries(WEB)) {
         res.commands.open = { kind: 'web', path: web.open, summary: web.openSummary || 'Open in your browser' };
     }
 }
+
+/**
+ * Capability areas, in display order. The top-level `openluxe help` groups the
+ * resource list under these headers (alphabetical within each). Mirrors the
+ * MCP capability map so the CLI, MCP, and docs tell one story.
+ */
+export const AREA_META = [
+    { key: 'account', label: 'Account & Search' },
+    { key: 'ai', label: 'AI & Automation' },
+    { key: 'crm', label: 'CRM & Clients' },
+    { key: 'realestate', label: 'Real Estate & Property' },
+    { key: 'business', label: 'Business & ERP' },
+    { key: 'projects', label: 'Projects & Productivity' },
+    { key: 'content', label: 'Creative & Content' },
+    { key: 'commerce', label: 'Commerce & Fulfillment' },
+    { key: 'marketing', label: 'Marketing & Sites' },
+    { key: 'media', label: 'Media & Broadcast' },
+    { key: 'community', label: 'Communities & Games' },
+    { key: 'comms', label: 'Communications' },
+    { key: 'travel', label: 'Travel' },
+    { key: 'integrations', label: 'Integrations' },
+    { key: 'other', label: 'Other' },
+];
+
+/**
+ * Canonical display metadata per resource: which area it belongs to and a
+ * human one-line description. This is the single source of truth for the help
+ * listing — it is merged onto RESOURCES below (overriding the terse
+ * auto-generated summaries). "(read-only)" marks areas the v1 API exposes for
+ * reading only. Keep every RESOURCES key represented here.
+ */
+export const RESOURCE_META = {
+    // ── Account & Search ────────────────────────────────────────────────────
+    me: { area: 'account', summary: 'Your token identity, industries, and access level (read-only).' },
+    search: { area: 'account', summary: 'Universal search across all your records in one call.' },
+    industries: { area: 'account', summary: 'Supported industry schemas and their field definitions (read-only).' },
+    credits: { area: 'account', summary: 'Credit balance, ledger, live pricing, and usage meter.' },
+
+    // ── AI & Automation ─────────────────────────────────────────────────────
+    generate: { area: 'ai', summary: 'Start an async AI generation (image, email, blog, business plan, …); returns a job to poll.' },
+    generations: { area: 'ai', summary: 'Poll an async AI generation job for its result.' },
+    delegations: { area: 'ai', summary: 'BYOA — let your own AI be the generation engine for OpenLuxe apps (zero platform credits).' },
+    render: { area: 'ai', summary: 'Headless PNG/PDF render of an in-app UI surface.' },
+
+    // ── CRM & Clients ───────────────────────────────────────────────────────
+    contacts: { area: 'crm', summary: 'CRM contacts — people & companies, plus personality, value, favors, and owned assets.' },
+    'contact-lists': { area: 'crm', summary: 'Named contact lists / segments for campaigns and exports.' },
+    notes: { area: 'crm', summary: 'Timestamped notes attached to a contact.' },
+    reminders: { area: 'crm', summary: 'Follow-up reminders on a contact.' },
+    tasks: { area: 'crm', summary: 'To-dos and their status, optionally tied to a contact.' },
+    deals: { area: 'crm', summary: 'Sales-pipeline deals you are a party to (read-only).' },
+    'client-deals': { area: 'crm', summary: 'Client-side deal records in the CRM.' },
+    reviews: { area: 'crm', summary: 'Reviews and testimonials collected from clients.' },
+    showings: { area: 'crm', summary: 'Property showings scheduled with a contact.' },
+    'open-houses': { area: 'crm', summary: 'Open-house events and their attendee RSVPs.' },
+    'crm-cultural-library': { area: 'crm', summary: 'Cultural etiquette briefings and per-contact context (dos & don’ts by region).' },
+    'crm-portfolio': { area: 'crm', summary: 'Rolled-up portfolio view of a contact’s holdings (read-only).' },
+
+    // ── Real Estate & Property ──────────────────────────────────────────────
+    listings: { area: 'realestate', summary: 'Property listings — media, pricing, and status.' },
+    property: { area: 'realestate', summary: 'Managed properties and their maintenance work orders.' },
+
+    // ── Business & ERP ──────────────────────────────────────────────────────
+    accounting: { area: 'business', summary: 'General ledger — accounts, journal entries, and financial statements.' },
+    receivables: { area: 'business', summary: 'Accounts receivable — customer invoices and payments.' },
+    payables: { area: 'business', summary: 'Accounts payable — supplier bills.' },
+    invoices: { area: 'business', summary: 'Invoices & estimates issued to clients (read-only).' },
+    procurement: { area: 'business', summary: 'Purchase requisitions and orders through the approval flow.' },
+    inventory: { area: 'business', summary: 'Stock levels, movements, and warehouses.' },
+    'fixed-assets': { area: 'business', summary: 'Fixed-asset register and depreciation.' },
+    manufacturing: { area: 'business', summary: 'Bills of materials and production orders.' },
+    hr: { area: 'business', summary: 'Employees and HR records.' },
+    qms: { area: 'business', summary: 'Quality management — objectives, risks, and inspections (ISO 9001).' },
+    'data-objects': { area: 'business', summary: 'Custom structured-data object definitions (the Data Hub schema).' },
+    'data-records': { area: 'business', summary: 'Rows stored against your custom data objects.' },
+    'command-centers': { area: 'business', summary: 'Command Center rollups — KPIs, trends, and missions (read-only).' },
+    'business-org-chart': { area: 'business', summary: 'Company org chart — departments and reporting lines (read-only).' },
+    'business-departments': { area: 'business', summary: 'Business departments and their members (read-only).' },
+    'business-dna': { area: 'business', summary: 'Business DNA — the company’s purpose, values, and governing philosophies.' },
+    'business-plan': { area: 'business', summary: 'The team’s business plan — narrative sections and roadmap; AI-drafts on request.' },
+    'business-succession': { area: 'business', summary: 'Succession planning for key roles (read-only).' },
+    policies: { area: 'business', summary: 'Company policies & procedures.' },
+    iot: { area: 'business', summary: 'Connected IoT devices and their telemetry.' },
+    'tech-tree': { area: 'business', summary: 'Business capability tech-tree graph (read-only).' },
+    influence: { area: 'business', summary: 'Influence-layer graph across missions and people (read-only).' },
+
+    // ── Projects & Productivity ─────────────────────────────────────────────
+    kanbans: { area: 'projects', summary: 'Kanban boards for projects and workflows.' },
+    'kanban-cards': { area: 'projects', summary: 'Individual cards on a Kanban board.' },
+    goals: { area: 'projects', summary: 'Goals and their progress.' },
+    epics: { area: 'projects', summary: 'Epics that group related goals.' },
+
+    // ── Creative & Content ──────────────────────────────────────────────────
+    brands: { area: 'content', summary: 'Brand identities across company / line / product levels.' },
+    'branding-projects': { area: 'content', summary: 'Branding projects on the infinite Brand Hub canvas.' },
+    smartboards: { area: 'content', summary: 'Smartboards — collaborative infinite-canvas diagrams.' },
+    clones: { area: 'content', summary: 'Digital clones — AI personas trained on your material.' },
+    kits: { area: 'content', summary: 'Kits — guided, shareable resource sequences.' },
+    storylines: { area: 'content', summary: 'Swipeable story decks built in the /stories builder.' },
+    courses: { area: 'content', summary: 'Courses and lessons in your school.' },
+    skills: { area: 'content', summary: 'Skills library available to your AI agents (read-only).' },
+    profile: { area: 'content', summary: 'Your personal profile (name, bio, website).' },
+    'professional-profile': { area: 'content', summary: 'Your professional profile / career digital-twin (editable).' },
+    'professional-profiles': { area: 'content', summary: 'Public professional showcases at /pro/{handle} (read-only).' },
+
+    // ── Commerce & Fulfillment ──────────────────────────────────────────────
+    'store-products': { area: 'commerce', summary: 'Products in your store — pricing, variants, and inventory.' },
+    fulfillment: { area: 'commerce', summary: 'Warehouse fulfillment queue and analytics (read-only).' },
+    print: { area: 'commerce', summary: 'Print-on-demand fulfillment and minimum quantities.' },
+    nft: { area: 'commerce', summary: 'NFT collections and their assets.' },
+    escrow: { area: 'commerce', summary: 'Escrow transactions and funding status (read-only).' },
+    affiliate: { area: 'commerce', summary: 'Affiliate program links and earnings (read-only).' },
+
+    // ── Marketing & Sites ───────────────────────────────────────────────────
+    sites: { area: 'marketing', summary: 'Websites and their pages, products, and storefronts.' },
+    funnels: { area: 'marketing', summary: 'Sales funnels and their steps (read-only).' },
+    reachverce: { area: 'marketing', summary: 'Reachverce marketing campaigns.' },
+    'message-campaigns': { area: 'marketing', summary: 'Bulk SMS/email message campaigns.' },
+    'ad-simulations': { area: 'marketing', summary: 'Ad-performance simulations (read-only).' },
+    'email-templates': { area: 'marketing', summary: 'Reusable email templates.' },
+    'email-deliverability-contact-lists': { area: 'marketing', summary: 'Deliverability-scored contact lists for sending.' },
+    'email-suppression': { area: 'marketing', summary: 'The email suppression list (read-only).' },
+
+    // ── Media & Broadcast ───────────────────────────────────────────────────
+    webinars: { area: 'media', summary: 'Webinars — scheduled, registration-gated broadcasts.' },
+    livestreams: { area: 'media', summary: 'Livestream rooms and recordings.' },
+    openflix: { area: 'media', summary: 'OpenFlix titles — movies and series.' },
+    'live-shop': { area: 'media', summary: 'Live shopping events (read-only).' },
+
+    // ── Communities & Games ─────────────────────────────────────────────────
+    associations: { area: 'community', summary: 'Association hubs — feeds, posts, and members.' },
+    meetups: { area: 'community', summary: 'In-person meetups inside a community.' },
+    'vms-communities': { area: 'community', summary: 'Gated-community visitor management (VMS).' },
+    'mini-games': { area: 'community', summary: 'Playable mini-games and your play history.' },
+    arena: { area: 'community', summary: 'Arena matches and competitive play (read-only).' },
+
+    // ── Communications ──────────────────────────────────────────────────────
+    calls: { area: 'comms', summary: 'Call logs and recordings (read-only).' },
+    'phone-numbers': { area: 'comms', summary: 'Your provisioned phone numbers.' },
+    'sms-messages': { area: 'comms', summary: 'SMS message history and sending.' },
+    'email-messages': { area: 'comms', summary: 'Email message history and sending.' },
+
+    // ── Travel ──────────────────────────────────────────────────────────────
+    travel: { area: 'travel', summary: 'Travel bookings across flights, stays, and cars (read-only).' },
+    'travel-flights': { area: 'travel', summary: 'Flight search and bookings (read-only).' },
+    'travel-stays': { area: 'travel', summary: 'Lodging search and bookings (read-only).' },
+    'travel-cars': { area: 'travel', summary: 'Rental-car search and bookings (read-only).' },
+
+    // ── Integrations ────────────────────────────────────────────────────────
+    webhooks: { area: 'integrations', summary: 'Outbound webhook subscriptions for platform events.' },
+    cli: { area: 'integrations', summary: 'CLI helper endpoints.' },
+};
+
+// Apply the canonical area + description onto each resource (single source of
+// truth for the help listing). A resource missing from RESOURCE_META keeps its
+// inline summary and falls into the "Other" area so nothing is ever dropped.
+for (const [key, meta] of Object.entries(RESOURCE_META)) {
+    if (RESOURCES[key]) {
+        RESOURCES[key].area = meta.area;
+        RESOURCES[key].summary = meta.summary;
+    }
+}
+for (const [key, res] of Object.entries(RESOURCES)) {
+    if (!res.area) res.area = 'other';
+}

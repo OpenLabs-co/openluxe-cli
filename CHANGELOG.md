@@ -3,6 +3,33 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.0]
+
+### Changed
+- **Typographic splash mark.** The gem above the wordmark is now formed out of
+  the repeating word `openluxe` — the pointed-top pentagon brand mark picked out
+  of the letter field with its wall band lit in champagne gold and the hollow
+  center dimmed, so the brand name literally draws the brand mark. Drawn with
+  shallow diagonals so it reads ~1:1 square (≈28 cols) despite 2:1 terminal
+  cells, instead of the old tall, narrow line sliver.
+- **Resource help is grouped and described.** `openluxe help` now lists the ~90
+  resources under capability-area headers (Account & Search, AI & Automation,
+  CRM & Clients, Business & ERP, …) — in a fixed, sensible order and
+  alphabetical within each group — instead of one long flat insertion-ordered
+  list. Mirrors the MCP capability map so the CLI, MCP, and docs tell one story.
+- **Every resource has a real one-line description.** The auto-generated
+  placeholder summaries (e.g. `nft (v1)`, `goals (v1)`) are replaced with human
+  descriptions of what each resource is, with `(read-only)` noted where the v1
+  API is read-only. Descriptions live in a single `RESOURCE_META` map in
+  `resources.js` and flow to `help`, `<resource>` help, and `manifest`.
+
+## [0.11.0]
+
+### Added
+- **Command aliases.** `ol`, `luxe`, `openl`, `verce`, `ov`, and `openverce`
+  all invoke the CLI (e.g. `ol mcp`, `luxe crm contacts list`); `--help` reflects
+  the name you typed.
+
 ## [0.10.1]
 
 ### Added

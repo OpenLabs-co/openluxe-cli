@@ -1,5 +1,5 @@
 import { request, ApiError } from './api.js';
-import { RESOURCES, WEB } from './resources.js';
+import { RESOURCES, WEB, AREA_META } from './resources.js';
 import * as auth from './auth.js';
 import { openBrowser } from './browser.js';
 import { load, VERSION } from './config.js';
@@ -277,6 +277,30 @@ async function callApi(method, path, { positionals = [], flags = {}, body, resou
     }
 }
 
+/**
+ * The RESOURCES section of `openluxe help`, grouped by capability area (in
+ * AREA_META order) and alphabetical within each group. A resource with no
+ * mapped area falls under "Other" so nothing is ever hidden.
+ */
+function resourceListing() {
+    const byArea = {};
+    for (const [key, r] of Object.entries(RESOURCES)) {
+        if (key === 'cli') continue; // internal helper, not a user-facing resource
+        (byArea[r.area || 'other'] ||= []).push(key);
+    }
+    const lines = [];
+    for (const { key, label } of AREA_META) {
+        const members = (byArea[key] || []).sort();
+        if (!members.length) continue;
+        lines.push('  ' + C.bold(label));
+        for (const name of members) {
+            lines.push(`    ${name.padEnd(26)} ${C.dim(RESOURCES[name].summary || '')}`);
+        }
+        lines.push('');
+    }
+    return lines.join('\n').replace(/\n+$/, '');
+}
+
 function topHelp() {
     const { token, user, base } = load();
     // The splash is for humans — piped/captured help (AI agents, scripts)
@@ -320,10 +344,10 @@ ${C.bold('AI / MCP')}
   credits buy               Open the credit top-up page (funds AI calls)
   manifest                  Print the typed-command surface as JSON
 
-${C.bold('RESOURCES')}
-${Object.entries(RESOURCES).filter(([g]) => g !== 'cli').map(([g, r]) => `  ${g.padEnd(16)} ${C.dim(r.summary)}`).join('\n')}
+${C.bold('RESOURCES')}   ${C.dim('(grouped by area — run a resource to see its commands)')}
+${resourceListing()}
 
-  Run ${C.cyan('openluxe <resource>')} to see its commands.
+  Run ${C.cyan(PROG + ' <resource>')} to see its commands.
 
 ${C.bold('STATE')}
   ${token ? `signed in as ${user?.email || 'unknown'}` : 'not signed in — run: openluxe auth login'}
