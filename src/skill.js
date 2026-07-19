@@ -60,3 +60,45 @@ function installCodex() {
 export function install({ project = false, codex = false } = {}) {
     return codex ? installCodex() : installClaude({ project });
 }
+
+/** A per-area managed block in ~/.codex/AGENTS.md, keyed by slug. */
+function writeCodexBlock(slug, body) {
+    const dir = join(homedir(), '.codex');
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, 'AGENTS.md');
+    const begin = `<!-- BEGIN OPENLUXE SKILL: ${slug} (managed by \`openluxe skill install\`) -->`;
+    const end = `<!-- END OPENLUXE SKILL: ${slug} -->`;
+    const block = `${begin}\n\n${body.trimEnd()}\n${end}`;
+    let content = existsSync(file) ? readFileSync(file, 'utf8') : '';
+    const s = content.indexOf(begin);
+    const e = content.indexOf(end);
+    if (s !== -1 && e !== -1) {
+        content = content.slice(0, s) + block + content.slice(e + end.length);
+    } else {
+        content = (content ? content.trimEnd() + '\n\n' : '') + block + '\n';
+    }
+    writeFileSync(file, content);
+    return file;
+}
+
+/**
+ * Install ONE area operator skill (fetched from /skills/areas/<area>) to the
+ * harness. Claude Code gets a self-contained SKILL.md with frontmatter under
+ * skills/openluxe-<area>/; Codex gets a per-area managed block in AGENTS.md.
+ *
+ * @param {{area:string,title:string,summary:string,markdown:string}} data
+ */
+export function installAreaSkill(data, { project = false, codex = false } = {}) {
+    const slug = `openluxe-${data.area}`;
+    const body = data.markdown || '';
+    if (codex) return writeCodexBlock(slug, body);
+
+    const description = (data.summary || '').replace(/\s+/g, ' ').trim();
+    const md = `---\nname: OpenLuxe ${data.title || data.area}\ndescription: ${description}\n---\n\n${body}\n`;
+    const root = project ? join(process.cwd(), '.claude') : join(homedir(), '.claude');
+    const dir = join(root, 'skills', slug);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, 'SKILL.md');
+    writeFileSync(file, md);
+    return file;
+}

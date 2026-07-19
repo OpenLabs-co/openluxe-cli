@@ -3,7 +3,18 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.12.0]
+## [0.13.0]
+
+### Added
+- **Per-area expert skills.** `openluxe skill list` shows a role-cast operator
+  guide for every capability area (CRM, Business/ERP, marketing, media, …);
+  `openluxe skill show <area>` prints one; `openluxe skill install <area>`
+  writes it into your harness (`~/.claude/skills/openluxe-<area>/SKILL.md`,
+  `--project` for repo-local, `--codex` for a managed block in AGENTS.md) so
+  your agent role-casts as that area's specialist. Guides are fetched from the
+  v1 API (`GET /skills/areas[/{area}]`) — the same content the MCP
+  `openluxe_skill` tool serves. `skill show`/`skill install` with no area still
+  install the overall developer skill.
 
 ### Changed
 - **Typographic splash mark.** The gem above the wordmark is now formed out of

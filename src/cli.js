@@ -5,7 +5,7 @@ import { openBrowser } from './browser.js';
 import { load, VERSION } from './config.js';
 import { serve as mcpServe } from './mcp.js';
 import { banner } from './banner.js';
-import { skillText, install as installSkill } from './skill.js';
+import { skillText, install as installSkill, installAreaSkill } from './skill.js';
 import * as agent from './agent.js';
 
 const C = {
@@ -337,9 +337,11 @@ ${C.bold('AI / MCP')}
                             the generator apps, claim it, print the work order
                             (fulfill with YOUR AI — zero platform credits)
   delegations upload        Upload an image for a claimed delegation (multipart)
-  skill install             Install the OpenLuxe agent skill into Claude Code
+  skill list                List the per-area expert operator guides
+  skill show [area]         Print the agent skill, or one area's expert guide
+  skill install [area]      Install the agent skill — or an area guide that
+                            role-casts your agent as that area's specialist
                             (--project for repo-local, --codex for ~/.codex/AGENTS.md)
-  skill show                Print the agent skill (SKILL.md)
   describe <res> <cmd>      Input/output schema for a command (or: describe POST /notes)
   credits buy               Open the credit top-up page (funds AI calls)
   manifest                  Print the typed-command surface as JSON
@@ -399,19 +401,61 @@ export async function run(argv) {
         return agent.upload(uuid, file);
     }
 
-    // The OpenLuxe agent skill — print it or install it into an AI agent.
+    // Skills — the overall OpenLuxe agent skill, PLUS per-area expert operator
+    // guides fetched from /skills/areas (install them into your harness or read
+    // them inline). `skill install <area>` role-casts your agent as the area's
+    // specialist.
     if (cmd === 'skill') {
         const sub = rest[0];
-        const { flags } = parseArgs(rest.slice(1));
-        if (sub === 'show') return console.log(skillText());
-        if (sub === 'install') {
-            const file = installSkill({ project: Boolean(flags.project), codex: Boolean(flags.codex) });
-            console.log(`✓ OpenLuxe agent skill installed → ${file}`);
-            if (flags.codex) console.log('  (managed block in AGENTS.md — re-run to update, other content untouched)');
-            else console.log("  Claude Code picks it up automatically; ask your agent about 'openluxe'.");
+        const { positionals, flags } = parseArgs(rest.slice(1));
+        const area = positionals[0];
+        const opts = { project: Boolean(flags.project), codex: Boolean(flags.codex) };
+
+        const fetchArea = async (path) => {
+            try {
+                return await request('GET', path);
+            } catch (e) {
+                if (e instanceof ApiError) {
+                    if (isTermsBlock(e)) { printTermsBlock(e.body); process.exit(1); }
+                    if (isPlatformAccessBlock(e)) { printPlatformAccessBlock(e.body || {}); process.exit(1); }
+                    if (e.status === 404) die(`Unknown skill area: ${area}. Run 'openluxe skill list'.`);
+                    die((e.status ? e.status + ' ' : '') + e.message);
+                }
+                die(e.message);
+            }
+        };
+
+        if (sub === 'list') {
+            const res = await fetchArea('/skills/areas');
+            console.log(`\n${C.bold('OpenLuxe area skills')} ${C.dim('— expert operator guides; install one to role-cast your agent')}\n`);
+            for (const s of res?.data || []) {
+                console.log(`  ${C.cyan(s.area.padEnd(18))} ${s.title}${s.summary ? C.dim('  ' + s.summary) : ''}`);
+            }
+            console.log(`\n  ${C.dim(`${PROG} skill show <area>   ·   ${PROG} skill install <area> [--project | --codex]`)}\n`);
             return;
         }
-        return die('usage: openluxe skill show | skill install [--project | --codex]');
+
+        if (sub === 'show') {
+            if (!area) return console.log(skillText());
+            const res = await fetchArea('/skills/areas/' + encodeURIComponent(area));
+            return console.log(res?.data?.markdown || '');
+        }
+
+        if (sub === 'install') {
+            if (!area) {
+                const file = installSkill(opts);
+                console.log(`✓ OpenLuxe agent skill installed → ${file}`);
+            } else {
+                const res = await fetchArea('/skills/areas/' + encodeURIComponent(area));
+                const file = installAreaSkill(res.data, opts);
+                console.log(`✓ OpenLuxe ${res.data.title} skill installed → ${file}`);
+            }
+            if (opts.codex) console.log('  (managed block in AGENTS.md — re-run to update, other content untouched)');
+            else console.log(`  Claude Code picks it up automatically — ask your agent to use ${area ? `the openluxe-${area} skill` : "'openluxe'"}.`);
+            return;
+        }
+
+        return die('usage: openluxe skill list | skill show [area] | skill install [area] [--project | --codex]');
     }
 
     // Input/output schema for one endpoint — the agent's field-name lookup.
