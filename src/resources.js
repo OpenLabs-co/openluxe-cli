@@ -582,6 +582,21 @@ export const RESOURCES = {
             create: { method: 'POST', path: '/goals', summary: 'POST /goals  [scope: goals:write]' },
             update: { method: 'PATCH', path: '/goals/:goal', summary: 'PATCH /goals/{goal}  [scope: goals:write]' },
             delete: { method: 'DELETE', path: '/goals/:goal', summary: 'DELETE /goals/{goal}  [scope: goals:write]' },
+            milestones: { method: 'GET', path: '/goals/:goal/milestones', summary: "GET /goals/{goal}/milestones — the goal's ordered checkpoints  [scope: goals:read]" },
+            'add-milestone': { method: 'POST', path: '/goals/:goal/milestones', summary: "POST /goals/{goal}/milestones (-d '{\"title\":\"Pre-launch\"}')  [scope: goals:write]" },
+            'update-milestone': { method: 'PATCH', path: '/goals/:goal/milestones/:milestone', summary: 'PATCH /goals/{goal}/milestones/{id} — status pending|completed  [scope: goals:write]' },
+            'delete-milestone': { method: 'DELETE', path: '/goals/:goal/milestones/:milestone', summary: 'DELETE /goals/{goal}/milestones/{id}  [scope: goals:write]' },
+        },
+    },
+    projects: {
+        summary: 'projects (v1) — the top container: group goals & epics into one parallel effort',
+        commands: {
+            list: { method: 'GET', path: '/projects', summary: 'GET /projects  [scope: goals:read]' },
+            get: { method: 'GET', path: '/projects/:project', summary: 'GET /projects/{project} (?include=children for nested goals/epics)  [scope: goals:read]' },
+            create: { method: 'POST', path: '/projects', summary: "POST /projects (-d '{\"title\":\"Miami launch\",\"scope\":\"business\"}')  [scope: goals:write]" },
+            update: { method: 'PATCH', path: '/projects/:project', summary: 'PATCH /projects/{project}  [scope: goals:write]' },
+            delete: { method: 'DELETE', path: '/projects/:project', summary: 'DELETE /projects/{project} — soft, goals survive  [scope: goals:write]' },
+            move: { method: 'POST', path: '/projects/:project/move', summary: "POST /projects/{project}/move — file a goal/epic under it (-d '{\"type\":\"goal\",\"id\":\"<uuid>\"}'; add \"detach\":true to remove)  [scope: goals:write]" },
         },
     },
     epics: {
@@ -912,6 +927,7 @@ export const WEB = {
     contacts: { item: (r) => (r.id ? `/contacts/${r.id}` : null), open: '/contacts/:contact', openSummary: 'Open a contact in your browser' },
     tasks: { hub: '/tasks', open: '/tasks', openSummary: 'Open your tasks in your browser' },
     goals: { hub: '/goals', item: (r) => (r.id ? `/goals?goal=${r.id}` : null), open: '/goals', openSummary: 'Open your goals in your browser' },
+    projects: { hub: '/goals?view=projects', open: '/goals?view=projects', openSummary: 'Open your projects in your browser' },
     deliverables: { hub: '/goals', open: '/goals', openSummary: 'Open your goals in your browser to see outstanding deliverables' },
     'live-shop': { hub: '/live-shop', open: '/live-shop', openSummary: 'Open Live Shop in your browser' },
     credits: { hub: '/credits' },
@@ -1016,6 +1032,7 @@ export const RESOURCE_META = {
     kanbans: { area: 'projects', summary: 'Kanban boards for projects and workflows.' },
     'kanban-cards': { area: 'projects', summary: 'Individual cards on a Kanban board.' },
     goals: { area: 'projects', summary: 'Goals — what you are trying to accomplish, and the deliverables each still needs made.' },
+    projects: { area: 'projects', summary: 'Projects — group goals & epics into one parallel effort.' },
     epics: { area: 'projects', summary: 'Epics that group related goals.' },
     deliverables: { area: 'projects', summary: 'The objects a goal still owes (a deck, a listing, a video); fulfil them once made.' },
 
