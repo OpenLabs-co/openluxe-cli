@@ -575,17 +575,35 @@ export const RESOURCES = {
         },
     },
     goals: {
-        summary: 'goals (v1)',
+        summary: 'goals (v1) — what you are trying to accomplish, and what still has to be made for it',
         commands: {
             list: { method: 'GET', path: '/goals', summary: 'GET /goals  [scope: goals:read]' },
             get: { method: 'GET', path: '/goals/:goal', summary: 'GET /goals/{goal}  [scope: goals:read]' },
+            create: { method: 'POST', path: '/goals', summary: 'POST /goals  [scope: goals:write]' },
+            update: { method: 'PATCH', path: '/goals/:goal', summary: 'PATCH /goals/{goal}  [scope: goals:write]' },
+            delete: { method: 'DELETE', path: '/goals/:goal', summary: 'DELETE /goals/{goal}  [scope: goals:write]' },
         },
     },
     epics: {
-        summary: 'epics (v1)',
+        summary: 'epics (v1) — an epic groups related goals into one arc',
         commands: {
             list: { method: 'GET', path: '/epics', summary: 'GET /epics  [scope: goals:read]' },
             get: { method: 'GET', path: '/epics/:epic', summary: 'GET /epics/{epic}  [scope: goals:read]' },
+            create: { method: 'POST', path: '/epics', summary: 'POST /epics  [scope: goals:write]' },
+            update: { method: 'PATCH', path: '/epics/:epic', summary: 'PATCH /epics/{epic}  [scope: goals:write]' },
+            delete: { method: 'DELETE', path: '/epics/:epic', summary: 'DELETE /epics/{epic}  [scope: goals:write]' },
+        },
+    },
+    deliverables: {
+        summary: 'deliverables (v1) — the objects a goal still owes; fulfil them once made',
+        commands: {
+            types: { method: 'GET', path: '/deliverable-types', summary: 'GET /deliverable-types — what a deliverable can be  [scope: goals:read]' },
+            list: { method: 'GET', path: '/deliverables', summary: "GET /deliverables (filters: ?goal= ?outstanding=1 ?status= ?expected_type=)  [scope: goals:read]" },
+            get: { method: 'GET', path: '/deliverables/:deliverable', summary: 'GET /deliverables/{deliverable}  [scope: goals:read]' },
+            plan: { method: 'POST', path: '/goals/:goal/deliverables', summary: "POST /goals/{goal}/deliverables — plan an object that must exist (-d '{\"title\":\"Sales deck\",\"expected_type\":\"sales_presentation\"}')  [scope: goals:write]" },
+            update: { method: 'PATCH', path: '/deliverables/:deliverable', summary: 'PATCH /deliverables/{deliverable} — set status in_progress|skipped  [scope: goals:write]' },
+            fulfil: { method: 'POST', path: '/deliverables/:deliverable/fulfil', summary: "POST /deliverables/{deliverable}/fulfil — attach what you made (-d '{\"resource_type\":\"sales_presentation\",\"resource_id\":918}')  [scope: goals:write]" },
+            delete: { method: 'DELETE', path: '/deliverables/:deliverable', summary: 'DELETE /deliverables/{deliverable}  [scope: goals:write]' },
         },
     },
     'professional-profile': {
@@ -893,7 +911,8 @@ export const WEB = {
     escrow: { item: (r) => (r.id ? `/escrow/${r.id}` : null), open: '/escrow/:escrow', openSummary: 'Open an escrow transaction in your browser' },
     contacts: { item: (r) => (r.id ? `/contacts/${r.id}` : null), open: '/contacts/:contact', openSummary: 'Open a contact in your browser' },
     tasks: { hub: '/tasks', open: '/tasks', openSummary: 'Open your tasks in your browser' },
-    goals: { hub: '/goals', open: '/goals', openSummary: 'Open your goals in your browser' },
+    goals: { hub: '/goals', item: (r) => (r.id ? `/goals?goal=${r.id}` : null), open: '/goals', openSummary: 'Open your goals in your browser' },
+    deliverables: { hub: '/goals', open: '/goals', openSummary: 'Open your goals in your browser to see outstanding deliverables' },
     'live-shop': { hub: '/live-shop', open: '/live-shop', openSummary: 'Open Live Shop in your browser' },
     credits: { hub: '/credits' },
     'professional-profiles': { open: '/pro/:handle', openSummary: 'Open a public professional profile in your browser (by handle)' },
@@ -996,8 +1015,9 @@ export const RESOURCE_META = {
     // ── Projects & Productivity ─────────────────────────────────────────────
     kanbans: { area: 'projects', summary: 'Kanban boards for projects and workflows.' },
     'kanban-cards': { area: 'projects', summary: 'Individual cards on a Kanban board.' },
-    goals: { area: 'projects', summary: 'Goals and their progress.' },
+    goals: { area: 'projects', summary: 'Goals — what you are trying to accomplish, and the deliverables each still needs made.' },
     epics: { area: 'projects', summary: 'Epics that group related goals.' },
+    deliverables: { area: 'projects', summary: 'The objects a goal still owes (a deck, a listing, a video); fulfil them once made.' },
 
     // ── Creative & Content ──────────────────────────────────────────────────
     brands: { area: 'content', summary: 'Brand identities across company / line / product levels.' },

@@ -43,6 +43,57 @@ openluxe describe POST /notes            # same, for any raw endpoint
 
 The full human reference with schemas and examples is at `https://openluxe.co/developers/reference`.
 
+## Start from a goal
+
+OpenLuxe's entry point for *work* is the **goal**, not the object. Before you do
+anything substantive, ask what it's in service of:
+
+```
+openluxe deliverables list --outstanding 1     # what every goal still needs made
+```
+
+The shape you get back:
+
+- **Goal** — a single objective, with a scope (business / personal / learning /
+  legal), a target date, and a progress %.
+- **Deliverable** — a placeholder for something that *does not exist yet*: "a
+  sales deck must be made for this goal." Each carries an `expected_type` (a real
+  object type — `sales_presentation`, `listing`, `video`, `design`, `email_campaign`,
+  `note`…) and a status: `planned → in_progress → made` (or `skipped`).
+
+A deliverable is the platform telling you, in advance, what work is outstanding.
+If the user's ask matches one, you have just been handed the spec.
+
+### Attach what you make back to the goal
+
+This is the half agents forget. Creating the object is not finishing the job —
+an artifact that isn't attached is invisible to the user's plan, and the goal's
+progress never moves.
+
+```bash
+# 1. See what's owed on a goal
+GOAL=$(openluxe goals list | jq -r '.data[0].id')
+DELIV=$(openluxe deliverables list --goal $GOAL --outstanding 1 | jq -r '.data[0].id')
+
+# 2. Make the thing — any endpoint, typed or raw. AI generation costs credits.
+GEN=$(openluxe api POST /generate/sales_presentation -d '{"prompt":"…"}' | jq -r '.data.id')
+openluxe api GET /generations/$GEN          # poll until status=completed
+
+# 3. Attach it to the deliverable it satisfies
+openluxe deliverables fulfil $DELIV -d '{"resource_type":"sales_presentation","resource_id":918}'
+# → deliverable becomes "made", goal progress recomputes
+```
+
+Every outstanding deliverable also carries a `fulfil_with` string spelling out its
+own follow-up call, so you don't have to remember the shape. If what you made
+doesn't match a planned deliverable, plan one first
+(`openluxe deliverables plan $GOAL -d '{"title":"…","expected_type":"listing"}'`)
+and then fulfil it.
+
+**Don't over-apply this.** If the user asks a question, looks something up, or
+does a one-off with no goal behind it, just do it — goals are the entry point for
+*work that ships something*, not a toll booth on every call.
+
 ## Call things
 
 ```
@@ -89,6 +140,7 @@ The two different 402s matter: tell them apart by `type` (URL) vs `error` (strin
 
 ## What the domains are for (orientation)
 
+- **Goals & deliverables** (`goals`, `epics`, `deliverables`): the objective spine — *why* work is happening and *what still has to be made* for it. Epics group goals; goals carry milestones and **deliverables** (placeholders for objects that must be made). `openluxe deliverables list --outstanding 1` is the fastest way to see what the user actually needs done. Scopes: `goals:read` / `goals:write`.
 - **CRM** (`contacts`, `notes`, `reminders`, `tasks`, `deals`, `contact-lists`): the relationship system of record. Contacts are owner-scoped; most CRM writes need `crm:*:write` scopes.
 - **Listings / real estate** (`listings`, `showings`, `open-houses`, `bookings`): property inventory + scheduling.
 - **Commerce** (`store-products`, `orders`, `fulfillment`): storefronts, orders, warehouse queue (fulfillment is read-only on v1).
@@ -177,3 +229,4 @@ OPENLUXE_API_URL=https://openluxe.test OPENLUXE_INSECURE=1 openluxe auth login
 5. **Money and PII read endpoints may be field-masked** — a `_masked` array on a resource names fields redacted for your token's role; don't treat masked nulls as missing data.
 6. Prefer typed commands (self-documenting) over raw `api` when one exists; `openluxe manifest` tells you.
 7. **Experience surfaces end in a link, not JSON** — when the user wants to play/watch/join/edit, relay the record's `public_url` (or `openluxe <resource> open …` URL); dump objects only when they asked for data.
+8. **Work lands on a goal** — before substantive work, check `openluxe deliverables list --outstanding 1`; after you make something in service of a goal, `openluxe deliverables fulfil …` so the deliverable closes and progress moves. An artifact you made and never attached is invisible to the user's plan. Skip this only for questions, lookups, and one-offs with no goal behind them.
