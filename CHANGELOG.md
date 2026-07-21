@@ -3,6 +3,32 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.0]
+
+### Added
+- **Goals as the entry point for work.** OpenLuxe organizes *work* around a
+  goal, not an object — the CLI now mirrors that whole spine:
+  - **`projects`** — the top container. `list`, `get` (`?include=children`),
+    `create`, `update`, `delete` (soft; goals survive), and `move` to file a
+    goal/epic under a project.
+  - **`goals`** — full CRUD plus milestones: `milestones`, `add-milestone`,
+    `update-milestone` (status `pending|completed`), `delete-milestone`.
+  - **`deliverables`** — the objects a goal still owes. `types`,
+    `list` (`--outstanding 1`, `--goal`, `--status`, `--expected_type`),
+    `get`, `plan` (declare something that must be made for a goal),
+    `update`, `fulfil` (attach what you made back to the goal so its progress
+    moves), and `delete`.
+
+  The SKILL.md gains a **"Start from a goal"** section and a rule that finished
+  work must land on a goal, so an agent asks *what an ask is in service of*
+  before it starts, and attaches the artifact when it's done.
+- **Storyline scheduling + frame reference.** The `storylines` resource gains
+  `frame-types` (the frame schema reference — every frame type with
+  fields/enums/limits, read before authoring frames), `schedules` /
+  `schedule-responses` (reads), and `create-schedule` / `update-schedule` /
+  `replace-schedule` / `delete-schedule` for recurring survey sends
+  (`storylines:schedules:write`).
+
 ## [0.13.0]
 
 ### Added

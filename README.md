@@ -175,6 +175,40 @@ openluxe api POST /notes -d '{"contact_id":1,"body":"hi"}'
 openluxe api DELETE /notes/9
 ```
 
+### Start from a goal
+
+OpenLuxe's entry point for *work* is the **goal**, not the object — a goal owns
+**deliverables** (the things that still have to be *made* for it), and goals
+group up into **projects**. The CLI mirrors that whole spine, so an agent can
+ask what an ask is in service of, do the work, and attach the result so the
+goal's progress actually moves:
+
+```bash
+openluxe deliverables list --outstanding 1        # what every goal still needs made
+openluxe goals list                               # your objectives + progress %
+openluxe projects create -d '{"title":"Miami launch","scope":"business"}'
+openluxe goals add-milestone <goal> -d '{"title":"Pre-launch"}'
+
+# plan an object a goal owes, make it, then attach it back:
+openluxe deliverables plan <goal> -d '{"title":"Sales deck","expected_type":"sales_presentation"}'
+openluxe deliverables fulfil <deliverable> -d '{"resource_type":"sales_presentation","resource_id":918}'
+```
+
+The agent SKILL.md's **"Start from a goal"** section teaches this loop end to
+end — including the half agents forget: an artifact that isn't attached to its
+goal is invisible to the user's plan.
+
+### Storyline decks & scheduled surveys
+
+Author swipeable story decks and drive recurring survey sends from the terminal:
+
+```bash
+openluxe storylines frame-types                   # every frame type's schema — read before authoring
+openluxe storylines create -d '{"title":"Q3 pulse","steps":[{"frame":{"type":"signup"}}]}'
+openluxe storylines create-schedule <uuid> -d '{"cadence":"monthly","contact_list_id":123}'
+openluxe storylines schedule-responses <uuid> <schedule>   # sent / opened / responded over time
+```
+
 ### Jump to the browser
 
 Some things aren't data — you play a mini game, watch a stream, or draw on a
