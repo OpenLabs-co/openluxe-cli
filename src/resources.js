@@ -838,6 +838,16 @@ export const RESOURCES = {
             get: { method: 'GET', path: '/ad-simulations/:id', summary: 'GET /ad-simulations/{id}  [scope: business:ad-simulations:read]' },
         },
     },
+    websites: {
+        summary: "Websites — rebuild an existing site in the AI website builder. Point it at a URL, read the pages worth keeping, and they become the new site's sitemap + content brief. Reads structure and content, never markup: this rebuilds a site's purpose in a new design language, it is not a cloner. Scraping is billed per page.",
+        commands: {
+            redesign: { method: 'GET', path: '/websites/:website/redesign', summary: 'Status + what has been read so far  [scope: websites:read]' },
+            discover: { method: 'POST', path: '/websites/:website/redesign/discover', summary: "Find the pages on a site (-d '{\"url\":\"https://example.com\"}'); returns the page list to choose from  [scope: websites:write]" },
+            ingest: { method: 'POST', path: '/websites/:website/redesign/ingest', summary: "Read specific pages (-d '{\"urls\":[\"https://example.com/\",\"https://example.com/pricing\"]}'), max 25; queued — poll `redesign`  [scope: websites:write]" },
+            apply: { method: 'POST', path: '/websites/:website/redesign/apply', summary: 'Turn what was read into the builder sitemap  [scope: websites:write]' },
+        },
+    },
+
     sites: {
         summary: 'sites (v1)',
         commands: {
