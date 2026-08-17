@@ -164,6 +164,8 @@ export const RESOURCES = {
             list: { method: 'GET', path: '/webinars' },
             get: { method: 'GET', path: '/webinars/:webinar' },
             registrations: { method: 'GET', path: '/webinars/:webinar/registrations' },
+            polls: { method: 'GET', path: '/webinars/:webinar/polls', summary: 'Host-pushed polls with their tallies  [scope: media:webinars:read]' },
+            'push-poll': { method: 'POST', path: '/webinars/:webinar/polls', summary: 'Ask the room a question mid-call (-d \'{"question":"Are you interested?","options":["Yes","No"]}\')  [scope: media:webinars:write]' },
         },
     },
     travel: {
@@ -461,6 +463,16 @@ export const RESOURCES = {
         commands: {
             list: { method: 'GET', path: '/livestreams', summary: 'GET /livestreams  [scope: media:livestreams:read]' },
             get: { method: 'GET', path: '/livestreams/:room', summary: 'GET /livestreams/{room}  [scope: media:livestreams:read]' },
+            video: { method: 'GET', path: '/livestreams/:room/video', summary: 'What the room is playing and where everyone is up to  [scope: media:livestreams:read]' },
+            play: { method: 'PUT', path: '/livestreams/:room/video', summary: 'Drive the room\'s shared video (-d \'{"video_id":123}\' | \'{"state":"paused"}\' | \'{"position_seconds":90}\' | \'{"state":"stopped"}\')  [scope: media:livestreams:write]' },
+        },
+    },
+    'video-gates': {
+        summary: 'video-gates (v1)',
+        commands: {
+            list: { method: 'GET', path: '/video-gates', summary: 'Gated bookings + how far each guest watched (--gate_status pending|passed|expired)  [scope: scheduling:gates:read]' },
+            get: { method: 'GET', path: '/video-gates/:uuid', summary: 'GET /video-gates/{booking_uuid}  [scope: scheduling:gates:read]' },
+            configs: { method: 'GET', path: '/video-gates/configs', summary: 'Which meeting types are gated, and behind what  [scope: scheduling:gates:read]' },
         },
     },
     profile: {
@@ -1096,7 +1108,8 @@ export const RESOURCE_META = {
 
     // ── Media & Broadcast ───────────────────────────────────────────────────
     webinars: { area: 'media', summary: 'Webinars — scheduled, registration-gated broadcasts.' },
-    livestreams: { area: 'media', summary: 'Livestream rooms and recordings.' },
+    livestreams: { area: 'media', summary: 'Livestream rooms, recordings, and the room\'s shared video playback.' },
+    'video-gates': { area: 'crm', summary: 'Video-gated meeting bookings — who watched what before their invite went out.' },
     openflix: { area: 'media', summary: 'OpenFlix titles — movies and series.' },
     'live-shop': { area: 'media', summary: 'Live shopping events (read-only).' },
 

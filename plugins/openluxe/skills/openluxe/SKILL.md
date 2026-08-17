@@ -148,6 +148,8 @@ The two different 402s matter: tell them apart by `type` (URL) vs `error` (strin
 - **Credits** (`credits`): the platform currency funding AI generation and paid actions. Check `credits balance` before expensive operations.
 - **AI generation** (`generate`, `generations`): async jobs — POST returns an id, poll `generations get <id>`. Costs credits.
 - **Content & community** (`kits`, `webinars`, `communities`, `professional-profile`, `sites`): guided resource sequences, broadcasts, groups, public profiles, generated websites.
+- **Live rooms** (`livestreams`, `webinars`): a room can play a video from the host's library to everyone in sync — `livestreams video <room>` reads the shared timeline, `livestreams play <room> -d '{"video_id":N}'` drives it (also `{"state":"paused"}`, `{"position_seconds":90}`, `{"state":"stopped"}`). `webinars push-poll` asks the room a question mid-call; `webinars polls` reads the tallies. Going live still needs a human with a camera — you can drive the video, not start the broadcast.
+- **Video gates** (`video-gates`): meeting bookings where the prospect must watch a video before their invite is released. Read-only. `--gate_status expired` is the segment worth acting on — they booked, watched part of it, and let the hold lapse.
 
 ## Recipes
 

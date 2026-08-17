@@ -3,6 +3,36 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.0]
+
+### Added
+- **Shared video playback in live rooms.** A host can play a video from their
+  library into a livestream/webinar so every attendee sees the *same second* of
+  it, and the CLI can drive it:
+  - `livestreams video <room>` — what's playing and where everyone is up to
+    (state, `position_seconds`, signed `stream_url`). The position is derived
+    server-side, so a late joiner lands on the right second.
+  - `livestreams play <room> -d '<json>'` — one reconciling command for the
+    whole transport: `{"video_id":123}` to start, `{"state":"paused"}` /
+    `{"state":"playing"}` to pause/resume, `{"position_seconds":90}` to seek,
+    `{"state":"stopped"}` to clear. Scoped `media:livestreams:write`.
+
+  Unlike going live, this needs no camera — it's what a control-room script
+  automates, which is why it's on the API at all.
+- **Webinar polls.** `webinars polls <id>` returns each host-pushed poll with
+  its tally; `webinars push-poll <id> -d '{"question":"…","options":["Yes","No"]}'`
+  asks the room mid-call (`409` if no episode is live).
+- **`video-gates`** — video-gated meeting bookings, where a prospect must watch
+  something before their invite is released. `list` (filter
+  `--gate_status pending|passed|expired`), `get <booking_uuid>`, and `configs`
+  (which meeting types are gated, and behind what). Scoped
+  `scheduling:gates:read`, read-only — releasing a hold through the API would
+  defeat the gate.
+
+  The `expired` rows are the useful ones: a lapsed hold leaves a cancelled
+  booking with no indication *why* anywhere else in the API, so this is the only
+  place that says "they booked, watched 20%, and never came back".
+
 ## [0.14.0]
 
 ### Added
