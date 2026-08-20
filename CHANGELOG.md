@@ -33,6 +33,44 @@ adheres to [Semantic Versioning](https://semver.org/).
   booking with no indication *why* anywhere else in the API, so this is the only
   place that says "they booked, watched 20%, and never came back".
 
+- **`pitches`, `pitch-sources` and `fund`** — the whole "get a film made"
+  surface, writable end to end.
+
+  A **pitch** is the project: logline, synopsis, script, budget, talent roles,
+  cast, characters, scenes, references, rights, the legal entity behind it, and
+  the **rooms** a visitor walks through — each one public, behind a signature,
+  behind your approval, or behind ID verification. `pitches create/update/
+  publish`, `add-room`/`room-access`, `add-item`/`attachable`,
+  `add-agreement`/`signers`, `sync-milestones`, `analytics`.
+
+  `fund` is **rewards crowdfunding in real money**: `fund create` starts a draft
+  against one of your pitches, `add-tier`/`add-reward` price what a backer gets,
+  and `fund launch` takes it live. Also `post-update`, `late-pledges`,
+  `seeking-match` and the private `matches` queue.
+
+  ⚠️ **Run `pitches vocabulary` and `fund vocabulary` first.** They return every
+  valid genre, rating, direction, room-item type and tier/reward field name in
+  one call. A reward tier's headline field is `name`, not `title`, and amounts
+  are integer cents — guessing either costs a round-trip per 422.
+
+  ⛔ **Two separate money rails hang off a pitch, and they are not
+  interchangeable.** `fund` sells a REWARD for cash and promises no return of any
+  kind; `pitches investment-tiers` sells a royalty percentage for platform
+  credits under a signed agreement, released per milestone from escrow. A project
+  may run both. Never sum, compare, or describe one as the other.
+
+  ⛔ **On Film Fund surfaces the vocabulary is a legal constraint, not a style
+  note:** backers, supporters, matching partners, rewards, pledges — never
+  "investors", never "returns", never "ROI". OpenLuxe is not a broker or a
+  funding portal, and copy written here lands on a public campaign page.
+
+  ⛔ **Not exposed, deliberately:** pledging, guest pledging, SCA recovery,
+  subscribing, investing, escrow releases, and *offering* a match — each one
+  charges a real card. Access grants, invitations and signing an agreement are
+  also out: the first two email a real person about a confidential project, and
+  a signature is a legal act by a named person. `fund launch` is refused with a
+  422 naming what is missing until the filmmaker's identity is verified.
+
 ## [0.14.0]
 
 ### Added

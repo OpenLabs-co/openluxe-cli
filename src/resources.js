@@ -458,6 +458,100 @@ export const RESOURCES = {
             'series-2': { method: 'GET', path: '/openflix/series/:series', summary: 'GET /openflix/series/{series}  [scope: media:openflix:read]', hidden: true },
         },
     },
+    pitches: {
+        summary: 'film & TV pitches (v1)',
+        commands: {
+            // ⚠️ Run this FIRST. Genres, content types, ratings, visibilities,
+            // directions, the section registry and the room-item vocabulary in
+            // one call — without it every one of those is a guess and a 422.
+            vocabulary: { method: 'GET', path: '/pitches/vocabulary', summary: 'Every valid value a pitch write accepts — genres, content types, ratings, visibilities, directions, sections, room-item types, production roles  [scope: media:pitches:read]' },
+            list: { method: 'GET', path: '/pitches', summary: 'Your pitches  [scope: media:pitches:read]' },
+            get: { method: 'GET', path: '/pitches/:uuid', summary: 'One pitch in full — story, budget, talent, cast, rights, entity, and your access level  [scope: media:pitches:read]' },
+            create: { method: 'POST', path: '/pitches', summary: "Create a pitch (-d '{\"title\":\"…\",\"logline\":\"…\",\"content_type\":\"movie\"}'; also budget_items[], talent_roles[], cast_members[], characters[], scenes[], references[], rights, entity_details)  [scope: media:pitches:write]" },
+            update: { method: 'PATCH', path: '/pitches/:uuid', summary: 'Change a pitch — only the keys you send  [scope: media:pitches:write]' },
+            replace: { method: 'PUT', path: '/pitches/:uuid', summary: 'PUT alias of update  [scope: media:pitches:write]' },
+            publish: { method: 'POST', path: '/pitches/:uuid/publish', summary: '⚠️ Publishes it OR submits it for admin review — a pitch offering investment goes to the queue. The response says which. Refused 422 until your identity is verified  [scope: media:pitches:write]' },
+            delete: { method: 'DELETE', path: '/pitches/:uuid', summary: 'Archive a pitch  [scope: media:pitches:write]' },
+            // ── Rooms: what a visitor walks through ───────────────────────
+            rooms: { method: 'GET', path: '/pitches/:uuid/rooms', summary: 'The rooms on this pitch and what each one requires to enter  [scope: media:pitches:read]' },
+            'add-room': { method: 'POST', path: '/pitches/:uuid/rooms', summary: "Add a room (-d '{\"title\":\"The Package\",\"access_requirement\":\"public\"}') — public, behind a signature, behind your approval, or behind ID verification  [scope: media:pitches:write]" },
+            'update-room': { method: 'PATCH', path: '/pitches/:uuid/rooms/:room', summary: 'Change one room  [scope: media:pitches:write]' },
+            'replace-room': { method: 'PUT', path: '/pitches/:uuid/rooms/:room', summary: 'PUT alias of update-room  [scope: media:pitches:write]' },
+            'delete-room': { method: 'DELETE', path: '/pitches/:uuid/rooms/:room', summary: 'Delete one room  [scope: media:pitches:write]' },
+            'reorder-rooms': { method: 'POST', path: '/pitches/:uuid/rooms/reorder', summary: 'Reorder the rooms  [scope: media:pitches:write]' },
+            'room-access': { method: 'POST', path: '/pitches/:uuid/rooms/requirements/bulk', summary: 'Set the entry requirement on MANY rooms at once, rather than one call per room  [scope: media:pitches:write]' },
+            // ── The content rail inside a room ────────────────────────────
+            items: { method: 'GET', path: '/pitches/:uuid/rooms/:room/items', summary: "What is in a room  [scope: media:pitches:read]" },
+            attachable: { method: 'GET', path: '/pitches/:uuid/attachable-resources', summary: 'Records elsewhere on your account you can drop into a room — decks, workbooks, videos, webinars. Read this before add-item: an item names its target by uuid  [scope: media:pitches:read]' },
+            'add-item': { method: 'POST', path: '/pitches/:uuid/rooms/:room/items', summary: 'Put something in a room  [scope: media:pitches:write]' },
+            'update-item': { method: 'PATCH', path: '/pitches/:uuid/rooms/:room/items/:item', summary: 'Change one item in a room  [scope: media:pitches:write]' },
+            'replace-item': { method: 'PUT', path: '/pitches/:uuid/rooms/:room/items/:item', summary: 'PUT alias of update-item  [scope: media:pitches:write]' },
+            'delete-item': { method: 'DELETE', path: '/pitches/:uuid/rooms/:room/items/:item', summary: 'Remove one item from a room  [scope: media:pitches:write]' },
+            'reorder-items': { method: 'POST', path: '/pitches/:uuid/rooms/:room/items/reorder', summary: "Reorder a room's contents  [scope: media:pitches:write]" },
+            // ── Documents that gate rooms ─────────────────────────────────
+            agreements: { method: 'GET', path: '/pitches/:uuid/agreements', summary: 'The documents that gate rooms on this pitch — one signature can unlock every room requiring it  [scope: media:pitches:read]' },
+            'add-agreement': { method: 'POST', path: '/pitches/:uuid/agreements', summary: 'Add a gating document (an NDA, a term sheet)  [scope: media:pitches:write]' },
+            'update-agreement': { method: 'PATCH', path: '/pitches/:uuid/agreements/:agreement', summary: 'Change a gating document  [scope: media:pitches:write]' },
+            'replace-agreement': { method: 'PUT', path: '/pitches/:uuid/agreements/:agreement', summary: 'PUT alias of update-agreement  [scope: media:pitches:write]' },
+            'delete-agreement': { method: 'DELETE', path: '/pitches/:uuid/agreements/:agreement', summary: 'Remove a gating document  [scope: media:pitches:write]' },
+            signers: { method: 'GET', path: '/pitches/:uuid/agreements/:agreement/signers', summary: '⛔ Who has signed. Reading is here; SIGNING is not on the API at all — a signature is a legal act by a person, and it happens in the room  [scope: media:pitches:read]' },
+            // ── Production ladder + who visited ───────────────────────────
+            'sync-milestones': { method: 'POST', path: '/pitches/:uuid/milestones/sync', summary: "Replace the milestone plan wholesale (-d '{\"milestones\":[…]}') — it is the whole ladder in one call  [scope: media:pitches:write]" },
+            'milestone-status': { method: 'PUT', path: '/pitches/:uuid/milestones/:milestone/status', summary: 'Move one milestone along  [scope: media:pitches:write]' },
+            analytics: { method: 'GET', path: '/pitches/:uuid/room-analytics', summary: 'Who came, which rooms they reached, how long they stayed  [scope: media:pitches:read]' },
+            // ── The ROYALTY-SHARE rail (⛔ not the Film Fund) ──────────────
+            'investment-tiers': { method: 'POST', path: '/pitches/:uuid/crowdfunding/tiers', summary: '⛔ The OTHER rail: investors buy a ROYALTY PERCENTAGE with platform credits under a signed agreement, released per milestone from escrow. Rewards-for-cash is `openluxe fund create`. Never sum the two  [scope: media:pitches:write]' },
+            'investment-stats': { method: 'GET', path: '/pitches/:uuid/crowdfunding/stats', summary: 'How the royalty-share raise is going  [scope: media:pitches:read]' },
+            'creator-agreement': { method: 'GET', path: '/pitches/:uuid/crowdfunding/creator-agreement', summary: 'The creator agreement as HTML, to read before signing. ⛔ Signing it stays in-app  [scope: media:pitches:read]' },
+        },
+    },
+    'pitch-sources': {
+        summary: 'pitch sources (v1)',
+        commands: {
+            list: { method: 'GET', path: '/pitch-sources', summary: 'Your private, reusable AI source material — film bible, treatment, notes. Never rendered on a public pitch page  [scope: media:pitches:read]' },
+            create: { method: 'POST', path: '/pitch-sources', summary: 'Add source material  [scope: media:pitches:write]' },
+            // POST, not PATCH — mirrors the in-app route, which accepts a
+            // multipart body on update.
+            update: { method: 'POST', path: '/pitch-sources/:uuid', summary: 'Replace source material  [scope: media:pitches:write]' },
+            delete: { method: 'DELETE', path: '/pitch-sources/:uuid', summary: 'Delete source material  [scope: media:pitches:write]' },
+        },
+    },
+    fund: {
+        summary: 'OpenFlix Film Fund (v1) — rewards crowdfunding',
+        commands: {
+            // ⚠️ Run this FIRST. A reward tier's headline field is `name`, not
+            // `title`, and a reward's `kind` is a closed set.
+            vocabulary: { method: 'GET', path: '/fund/vocabulary', summary: 'Campaign types, the tier and reward field lists with their enums, and the vocabulary rule below — run this before building tiers  [scope: media:fund:read]' },
+            list: { method: 'GET', path: '/fund/campaigns', summary: 'Campaigns you own  [scope: media:fund:read]' },
+            get: { method: 'GET', path: '/fund/campaigns/:uuid', summary: 'One campaign with its reward tiers  [scope: media:fund:read]' },
+            stats: { method: 'GET', path: '/fund/campaigns/:uuid/stats', summary: '⚠️ `pledged`, never "raised" — under all-or-nothing nothing is charged until the goal is met, so the total is a set of promises  [scope: media:fund:read]' },
+            create: { method: 'POST', path: '/fund/campaigns', summary: "Start a campaign against one of your pitches (-d '{\"pitch_uuid\":\"…\",\"goal_cents\":4500000,\"ends_at\":\"2027-01-31\"}'). Creates a DRAFT — no page, no pledges, nothing charged  [scope: media:fund:write]" },
+            update: { method: 'PATCH', path: '/fund/campaigns/:uuid', summary: '🔥 goal_cents and ends_at FREEZE once live — they are the two halves of the offer every backer accepted. A frozen write is a 422 naming the fields. Everything else stays editable  [scope: media:fund:write]' },
+            replace: { method: 'PUT', path: '/fund/campaigns/:uuid', summary: 'PUT alias of update  [scope: media:fund:write]' },
+            launch: { method: 'POST', path: '/fund/campaigns/:uuid/launch', summary: '⛔ Go live and start taking pledges. Refused 422 with what is missing until your identity is verified — launch is the moment it starts taking other people’s card details  [scope: media:fund:write]' },
+            // ── Reward tiers, and the rewards inside them ─────────────────
+            'add-tier': { method: 'POST', path: '/fund/campaigns/:uuid/tiers', summary: "Add a pledge level (-d '{\"name\":\"Name in the credits\",\"amount_cents\":5000}') — `name`, not `title`; cents, not dollars  [scope: media:fund:write]" },
+            'update-tier': { method: 'PATCH', path: '/fund/tiers/:tier', summary: '⛔ A tier backers already hold is frozen except cosmetically, and is never deleted  [scope: media:fund:write]' },
+            'replace-tier': { method: 'PUT', path: '/fund/tiers/:tier', summary: 'PUT alias of update-tier  [scope: media:fund:write]' },
+            'delete-tier': { method: 'DELETE', path: '/fund/tiers/:tier', summary: 'Delete a tier nobody has backed  [scope: media:fund:write]' },
+            'reorder-tiers': { method: 'POST', path: '/fund/campaigns/:uuid/tiers/reorder', summary: 'Reorder the reward tiers  [scope: media:fund:write]' },
+            'add-reward': { method: 'POST', path: '/fund/tiers/:tier/rewards', summary: "What the backer actually receives (-d '{\"kind\":\"merch\",\"label\":\"…\"}'); kind ∈ merch|membership|channel_subscription|title_entitlement|custom  [scope: media:fund:write]" },
+            'update-reward': { method: 'PATCH', path: '/fund/tiers/:tier/rewards/:reward', summary: '⚠️ Rewards have no uuid — they are addressed by id NESTED under their tier  [scope: media:fund:write]' },
+            'replace-reward': { method: 'PUT', path: '/fund/tiers/:tier/rewards/:reward', summary: 'PUT alias of update-reward  [scope: media:fund:write]' },
+            'delete-reward': { method: 'DELETE', path: '/fund/tiers/:tier/rewards/:reward', summary: 'Remove one reward from a tier  [scope: media:fund:write]' },
+            // ── Running it ────────────────────────────────────────────────
+            'post-update': { method: 'POST', path: '/fund/campaigns/:uuid/updates', summary: "Post an update (-d '{\"title\":\"…\",\"body\":\"…\"}'). ⚠️ Backers-only by default — production updates carry unreleased footage and slipped dates. Set is_public to put one on the open web  [scope: media:fund:write]" },
+            'late-pledges': { method: 'POST', path: '/fund/campaigns/:uuid/late-pledges', summary: '⛔ Only on a campaign that SUCCEEDED, and opt-in. A failed campaign charged nobody  [scope: media:fund:write]' },
+            // ── Matching contributions ────────────────────────────────────
+            'seeking-match': { method: 'POST', path: '/fund/campaigns/:uuid/seeking-match', summary: 'Ask for a matching partner — a stranger deciding on $25 is told their $25 is worth $50. ⛔ A CONTRIBUTION, not an investment: no equity, no royalty, no repayment  [scope: media:fund:write]' },
+            matches: { method: 'GET', path: '/fund/campaigns/:uuid/matches', summary: '⛔ Your PRIVATE offer queue — an offer names a person and the money they were willing to put up, and it is nobody else’s business until you accept  [scope: media:fund:read]' },
+            'accept-match': { method: 'POST', path: '/fund/matches/:match/accept', summary: 'Accept a matching offer — public from this moment  [scope: media:fund:write]' },
+            'decline-match': { method: 'POST', path: '/fund/matches/:match/decline', summary: 'Decline a matching offer  [scope: media:fund:write]' },
+            // ⛔ NOT here, and not by oversight: pledging, guest pledging, SCA
+            // recovery, subscribing, and OFFERING a match. Each one mints a
+            // Stripe object against a real card, so it stays in-app.
+        },
+    },
     livestreams: {
         summary: 'livestreams (v1)',
         commands: {
@@ -971,6 +1065,13 @@ export const WEB = {
     'live-shop': { hub: '/live-shop', open: '/live-shop', openSummary: 'Open Live Shop in your browser' },
     credits: { hub: '/credits' },
     'professional-profiles': { open: '/pro/:handle', openSummary: 'Open a public professional profile in your browser (by handle)' },
+    pitches: { hub: '/my-pitches', item: (r) => (r.web_url ? null : r.uuid ? `/pitch/${r.uuid}` : null), open: '/my-pitches', openSummary: 'Open your film & TV pitches in your browser' },
+    // ⛔ No `item` mapping to /fund/{uuid}: that page is scoped to PUBLISHED
+    // campaigns, so a draft would 404. Every campaign response already carries
+    // a state-aware `web_url` (the reward editor while it is a draft, the
+    // public page once it is live), and public_url/web_url win over `item`
+    // in resolveLink anyway.
+    fund: { hub: '/film-funding-arena', label: 'Open', open: '/film-funding-arena', openSummary: 'Open the film funding arena in your browser' },
 };
 
 // Inject the `open` commands so `openluxe <resource>` help lists them and the
@@ -1111,6 +1212,9 @@ export const RESOURCE_META = {
     livestreams: { area: 'media', summary: 'Livestream rooms, recordings, and the room\'s shared video playback.' },
     'video-gates': { area: 'crm', summary: 'Video-gated meeting bookings — who watched what before their invite went out.' },
     openflix: { area: 'media', summary: 'OpenFlix titles — movies and series.' },
+    pitches: { area: 'media', summary: 'Film & TV pitches — the project, the ROOMS a visitor walks through, the documents that gate them, and the royalty-share investment tiers.' },
+    'pitch-sources': { area: 'media', summary: 'Private, reusable source material for a pitch (film bible, treatment, notes).' },
+    fund: { area: 'media', summary: 'OpenFlix Film Fund — rewards crowdfunding. ⛔ Backers pledge REAL MONEY for a REWARD; no equity, no royalty, no return. Not the royalty-share rail on `pitches`.' },
     'live-shop': { area: 'media', summary: 'Live shopping events (read-only).' },
 
     // ── Communities & Games ─────────────────────────────────────────────────
