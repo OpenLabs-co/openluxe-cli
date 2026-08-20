@@ -901,6 +901,54 @@ export const RESOURCES = {
             comment: { method: 'POST', path: '/storylines/:uuid/comments', summary: "Leave a comment (-d '{\"body\":\"…\",\"step_uuid\":\"…\"}'; omit step_uuid for a deck-level note)  [scope: storylines:write]" },
             'resolve-comment': { method: 'POST', path: '/storylines/:uuid/comments/:comment/resolve', summary: 'Mark a comment resolved  [scope: storylines:write]' },
             'delete-comment': { method: 'DELETE', path: '/storylines/:uuid/comments/:comment', summary: 'Delete a comment (your own, or any of them if you own the deck)  [scope: storylines:write]' },
+            // ── single-slide editing ──────────────────────────────────────
+            // set-steps replaces ALL slides. These five change one slide, so a
+            // revision never means re-sending (or accidentally dropping) the
+            // rest of the deck. Slide ids come from `storylines get`.
+            'add-step': { method: 'POST', path: '/storylines/:uuid/steps', summary: "Add ONE slide (-d '{\"frame\":{\"type\":\"statement\",\"headline\":[\"…\"]}}'); optional after_position (0-based) inserts rather than appends, and an inline `form` authors its questions  [scope: storylines:write]" },
+            'replace-step': { method: 'PUT', path: '/storylines/:uuid/steps/:step', summary: 'PUT alias of update-step  [scope: storylines:write]' },
+            'update-step': { method: 'PATCH', path: '/storylines/:uuid/steps/:step', summary: "Change ONE slide — only the keys you send (-d '{\"frame\":{…}}'). The rest of the deck is untouched  [scope: storylines:write]" },
+            'replace-step-order': { method: 'PUT', path: '/storylines/:uuid/steps/reorder', summary: 'PUT alias of reorder-steps  [scope: storylines:write]' },
+            'reorder-steps': { method: 'PATCH', path: '/storylines/:uuid/steps/reorder', summary: "Reorder the deck (-d '{\"order\":[\"<slide-id>\",\"<slide-id>\"]}') — list every slide id in the order you want  [scope: storylines:write]" },
+            'duplicate-step': { method: 'POST', path: '/storylines/:uuid/steps/:step/duplicate', summary: 'Copy ONE slide, landing the copy directly after the original  [scope: storylines:write]' },
+            'delete-step': { method: 'DELETE', path: '/storylines/:uuid/steps/:step', summary: 'Delete ONE slide (a deck must keep at least one)  [scope: storylines:write]' },
+            // ── AI authoring (credit-charged; a shortfall is the standard 402) ──
+            generate: { method: 'POST', path: '/storylines/:uuid/generate', summary: "Have Ace write the WHOLE deck from a topic (-d '{\"topic\":\"…\",\"cta_label\":\"…\",\"cta_href\":\"https://…\"}'; also goal/audience/tone/step_count 6-20). Queued → poll generate-status. ⚠️ REPLACES the deck's current slides — duplicate first if they matter. 100 credits  [scope: storylines:write]" },
+            'generate-status': { method: 'GET', path: '/storylines/:uuid/generate/status', summary: 'Poll a queued deck write: queued|running|completed|failed  [scope: storylines:read]' },
+            'draft-step': { method: 'POST', path: '/storylines/:uuid/steps/:step/draft', summary: "Have Ace rewrite ONE slide (-d '{\"instructions\":\"punchier\"}'). Lands in pending_frame — the live slide is untouched until you accept. Text slides only. 15 credits  [scope: storylines:write]" },
+            'accept-draft': { method: 'POST', path: '/storylines/:uuid/steps/:step/pending-frame/accept', summary: 'Promote the pending AI draft to the live slide  [scope: storylines:write]' },
+            'reject-draft': { method: 'POST', path: '/storylines/:uuid/steps/:step/pending-frame/reject', summary: 'Discard the pending AI draft; the live slide is unchanged  [scope: storylines:write]' },
+            texture: { method: 'POST', path: '/storylines/:uuid/texture', summary: "Generate a custom slide texture (-d '{\"prompt\":\"brushed brass, seamless\"}') → texture_url for a frame's background.texture_url. The NAMED materials in frame-types are free; use this only when none fits. 10 credits  [scope: storylines:write]" },
+            // ── translation ───────────────────────────────────────────────
+            translations: { method: 'GET', path: '/storylines/:uuid/translations', summary: 'Languages this deck speaks + every language it could, and the per-locale credit cost. Free — run it before paying  [scope: storylines:read]' },
+            translate: { method: 'POST', path: '/storylines/:uuid/translations', summary: "Translate the deck (-d '{\"locale\":\"es\"}'). The SAME public link then plays in that language via ?lang=. 40 credits per locale  [scope: storylines:write]" },
+            'delete-translation': { method: 'DELETE', path: '/storylines/:uuid/translations/:locale', summary: 'Drop one language from the deck  [scope: storylines:write]' },
+            // ── reference data (identical for every account, names no client) ──
+            'frame-patterns': { method: 'GET', path: '/storylines/field-patterns', summary: 'The named input-pattern catalogue — server-side answer validation for a form slide\'s fields (pattern_preset)  [scope: storylines:read]' },
+            'document-presets': { method: 'GET', path: '/storylines/document-presets', summary: 'Ready-made document requests (passport, bank statement, proof of address, …) — use these labels on an `upload` slide so the reviewer recognises what came in  [scope: storylines:read]' },
+            'intake-presets': { method: 'GET', path: '/storylines/intake-presets', summary: 'The ready-made Client Intake decks (real estate, mortgage, …)  [scope: storylines:read]' },
+            'intake-preset': { method: 'GET', path: '/storylines/intake-presets/:key', summary: 'One preset with its full slide bodies — preview a template before installing it  [scope: storylines:read]' },
+            'install-intake-preset': { method: 'POST', path: '/storylines/intake-presets/:key/install', summary: 'Install a ready-made intake as a real deck you own (sending it to a human still needs intakes:send)  [scope: storylines:write]' },
+            // ── palettes, folders, and the public deck index ───────────────
+            'replace-palette': { method: 'PUT', path: '/storylines/palettes/:palette', summary: 'PUT alias of update-palette  [scope: storylines:write]' },
+            'update-palette': { method: 'PATCH', path: '/storylines/palettes/:palette', summary: "Rewrite a palette in place (-d '{\"name\":\"…\",\"tokens\":{…}}') — deleting and re-creating one changes its custom-{id} key and silently unsets the scheme on every deck using it  [scope: storylines:write]" },
+            'palette-brands': { method: 'GET', path: '/storylines/palettes/brand-sources', summary: 'Your brands with their flattened hex colours — the "build a palette from a brand" sources, so a deck can use the REAL brand colour instead of a guess  [scope: storylines:read]' },
+            'replace-group-order': { method: 'PUT', path: '/storylines/groups/reorder', summary: 'PUT alias of reorder-groups  [scope: storylines:write]' },
+            'reorder-groups': { method: 'PATCH', path: '/storylines/groups/reorder', summary: "Reorder your deck folders (-d '{\"order\":[3,1,2]}')  [scope: storylines:write]" },
+            'index-seo': { method: 'GET', path: '/storylines/index-seo', summary: 'SEO + branding for your PUBLIC deck index at /storyline/u/{handle} — the one link that lists everything you have published  [scope: storylines:read]' },
+            'replace-index-seo': { method: 'PUT', path: '/storylines/index-seo', summary: 'PUT alias of set-index-seo  [scope: storylines:write]' },
+            'set-index-seo': { method: 'PATCH', path: '/storylines/index-seo', summary: "Customize that index (-d '{\"heading\":\"…\",\"accent\":\"#3b82f6\",\"slug\":\"my-decks\"}') — SEO title/description/og_image_url, brand name + logo_url, hero copy, colours, a CTA button, a featured deck and a vanity slug. Keys MERGE; send null to clear one  [scope: storylines:write]" },
+        },
+    },
+    intakes: {
+        summary: 'client intakes (v1) — a storyline SENT to a client to collect answers, documents and a signature',
+        commands: {
+            list: { method: 'GET', path: '/intakes', summary: 'GET /intakes — packets you have sent, with their status  [scope: intakes:read]' },
+            get: { method: 'GET', path: '/intakes/:intake', summary: "One packet: answers, document slots and where the client got to. ⛔ Document BYTES and OCR text are deliberately never returned to a token — a client's ID scan is not reachable with a bearer string  [scope: intakes:read]" },
+            send: { method: 'POST', path: '/storylines/:storyline/intakes', summary: "⚠️ EMAILS A REAL PERSON. Send an intake template to a client (-d '{\"contact_id\":123}'). Its own scope — intakes:write (reviewing a document) does NOT grant it  [scope: intakes:send]" },
+            'review-document': { method: 'POST', path: '/intakes/:intake/documents/:document/review', summary: "Accept or reject one submitted document (-d '{\"status\":\"accepted\"}')  [scope: intakes:write]" },
+            'release-gate': { method: 'POST', path: '/intakes/:intake/gates/:step/release', summary: 'Let a client parked on a waiting-room `gate` slide through. Mails nobody — it unblocks somebody already holding your link  [scope: intakes:write]' },
+            cancel: { method: 'POST', path: '/intakes/:intake/cancel', summary: 'Cancel an outstanding packet  [scope: intakes:write]' },
         },
     },
     'business-dna': {
@@ -1046,7 +1094,10 @@ export const WEB = {
     livestreams: { hub: '/livestreams', label: 'Watch', open: '/livestreams/:slug?', openSummary: 'Open livestreams (or one room by slug) in your browser' },
     webinars: { hub: '/webinars', open: '/webinars/:slug?', openSummary: 'Open webinars (or one webinar by slug) in your browser' },
     kits: { hub: '/kits', open: '/kits', openSummary: 'Open your kits in your browser (kit records carry a public_url landing link)' },
-    storylines: { hub: '/stories', item: (r) => (r.id ? `/stories/${r.id}/edit` : null), open: '/stories', openSummary: 'Open the Storyline Builder in your browser (deck records carry public_url + web_url links)' },
+    // The hub moved /stories -> /storylines; these were still pointing at the
+    // old path, which now only resolves through a back-compat redirect.
+    storylines: { hub: '/storylines', item: (r) => (r.id ? `/storylines/${r.id}/edit` : null), open: '/storylines', openSummary: 'Open the Storyline Builder in your browser (deck records carry public_url + web_url links)' },
+    intakes: { hub: '/storylines', open: '/storylines', openSummary: 'Open the Storyline Builder, where intake templates are authored and sent' },
     courses: { hub: '/courses', label: 'Learn', open: '/courses/:slug?', openSummary: 'Open courses (or one course by slug) in your browser' },
     smartboards: { hub: '/smartboards', item: (r) => (r.uuid ? `/smartboards/${r.uuid}` : null), open: '/smartboards/:uuid?', openSummary: 'Open a smartboard by uuid (or the hub) in your browser' },
     kanbans: { hub: '/kanbans', item: (r) => (r.uuid ? `/kanbans/${r.uuid}` : null), open: '/kanbans/:kanban?', openSummary: 'Open a kanban board by uuid (or the hub) in your browser' },
@@ -1182,7 +1233,8 @@ export const RESOURCE_META = {
     smartboards: { area: 'content', summary: 'Smartboards — collaborative infinite-canvas diagrams.' },
     clones: { area: 'content', summary: 'Digital clones — AI personas trained on your material.' },
     kits: { area: 'content', summary: 'Kits — guided, shareable resource sequences.' },
-    storylines: { area: 'content', summary: 'Swipeable story decks built in the /stories builder.' },
+    storylines: { area: 'content', summary: 'Swipeable story decks — presentations built in the /storylines builder, editable one slide at a time and translatable into 25 languages on the same link.' },
+    intakes: { area: 'content', summary: 'Client intakes — a storyline sent to a client to collect answers, documents and a signature.' },
     courses: { area: 'content', summary: 'Courses and lessons in your school.' },
     skills: { area: 'content', summary: 'Skills library available to your AI agents (read-only).' },
     profile: { area: 'content', summary: 'Your personal profile (name, bio, website).' },

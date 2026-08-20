@@ -174,6 +174,58 @@ openluxe api GET /generations/$GEN     # poll until status=completed
 openluxe api GET /search --q "founders"
 ```
 
+### Presentations (Storylines) — the deliverable is a LIVE LINK, never a file
+
+A "presentation / deck / slides / pitch" in OpenLuxe is a **storyline**: a
+swipeable deck with its own public URL, analytics and QR. Never generate a
+`.pptx` — the user gets a link they can send, re-open and edit.
+
+```bash
+# 1. READ THE REFERENCE FIRST. It is not optional: unknown keys are dropped
+#    SILENTLY, so a frame with a near-miss field name saves fine and renders
+#    blank. `stat` and `offer-stack` carry their content in a `component`
+#    block, NOT top-level fields, and a stat `value` must be a NUMBER.
+openluxe storylines frame-types | jq '.frame_types, .components'
+
+# 2. Author it. Vary the frame type per beat — a deck of eight `statement`
+#    slides is the single most common mistake, and the API says so in
+#    `authoring_hint`.
+UUID=$(openluxe storylines create -d '{
+  "title":"Why founders should own their audience",
+  "steps":[
+    {"frame":{"type":"statement","kicker":"The problem","headline":["You rent","every relationship you have."]}},
+    {"frame":{"type":"stat","component":{"name":"StatCounter","props":{"value":92,"suffix":"%","label":"of reach is borrowed"}}}},
+    {"frame":{"type":"contrast","left":{"kicker":"Rented","headline":"Someone else decides","items":["Algorithm changes","No export"]},
+                                 "right":{"kicker":"Owned","headline":"You decide","items":["Your list","Your link"]}}},
+    {"frame":{"type":"cta","headline":"Ready?","primary":{"label":"Book a call","href":"https://example.com/book"},"confetti":true}}
+  ]}' | jq -r '.data.id')
+
+# 3. REVISE ONE SLIDE — never re-post the deck. A second deck strands the link
+#    you already gave the user, with its analytics and comments.
+STEP=$(openluxe storylines get "$UUID" | jq -r '.data.steps[1].id')
+openluxe storylines update-step "$UUID" "$STEP" -d '{"frame":{"type":"stat","component":{"name":"StatCounter","props":{"value":96,"suffix":"%","label":"of reach is borrowed"}}}}'
+
+# 4. On-brand colour: use the user's REAL brand hex, don't guess one.
+openluxe storylines palette-brands
+openluxe storylines create-palette -d '{"name":"Northwind","tokens":{"bg":"#0b0f19","bgDeep":"#05070d","bgSoft":"#131a2a","ink":"#ffffff","inkSoft":"#d1d5db","accent":"#3b82f6"}}'
+openluxe storylines update "$UUID" -d '{"scheme":"custom-42"}'
+
+# 5. Publish → this is what you hand the human. Print the share_banner verbatim.
+openluxe storylines update "$UUID" -d '{"status":"published"}' | jq -r '.data.public_url'
+
+# 6. Offer a translation — the SAME link plays in another language via ?lang=.
+openluxe storylines translations "$UUID"          # free: available locales + cost
+openluxe storylines translate "$UUID" -d '{"locale":"es"}'   # 40 credits
+```
+
+⚠️ Credit-charged storyline calls: `generate` (whole deck, 100) ·
+`draft-step` (one slide, 15) · `translate` (40/locale) · `texture` (10). A
+shortfall is the standard `402` with a top-up link. The named materials in
+`frame-types` cost nothing — only reach for `texture` when none of them fits.
+⚠️ `ai_reply` / `ai_interview` slides spend the **deck owner's** credits on
+**every viewer**; only add one when asked, and always set `ai.fallback`.
+
+
 ## BYOA — be the generation engine (zero platform credits)
 
 The generator apps can delegate generation to YOU instead of the platform AI —
