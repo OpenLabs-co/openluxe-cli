@@ -3,7 +3,7 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.15.0]
+## [0.16.0]
 
 ### Added
 - **Shared video playback in live rooms.** A host can play a video from their
@@ -70,6 +70,51 @@ adheres to [Semantic Versioning](https://semver.org/).
   also out: the first two email a real person about a confidential project, and
   a signature is a legal act by a named person. `fund launch` is refused with a
   422 naming what is missing until the filmmaker's identity is verified.
+
+- **Storyline deck editing, translation, and client intakes.**
+  - Five single-slide commands — `add-step`, `update-step`, `reorder-steps`,
+    `duplicate-step`, `delete-step` — plus `replace-step`. `set-steps` replaces
+    ALL slides, so revising a deck used to mean re-sending every slide you did
+    not want to touch: wasteful on a 30-slide deck, and a real chance of
+    dropping one you failed to round-trip.
+  - AI authoring: `generate` / `generate-status` (writes a whole deck from a
+    topic — ⚠️ REPLACES the current slides), `draft-step` with the
+    `accept-draft` / `reject-draft` pending-frame loop, and `texture`. All
+    credit-charged.
+  - `translations` / `translate` / `delete-translation` — the SAME public link
+    plays in another language via `?lang=`, which is how a deck reaches an
+    audience its author does not share a language with. `translations` is free;
+    run it before paying.
+  - Collaboration: `collaborators`, `share`, `update-collaborator`, `unshare`,
+    `transfer-ownership` (flagged irreversible in its own summary — the caller
+    drops to editor and only the new owner can hand it back), plus deck and
+    per-slide `comments`.
+  - Palettes, folders and the public deck index at `/storyline/u/{handle}`:
+    `update-palette` rewrites in place, because deleting and re-creating one
+    changes its `custom-{id}` key and silently unsets the scheme on every deck
+    using it. `palette-brands` returns the user's REAL brand hexes so a deck
+    stops guessing at them.
+  - Reference data that needs no account context: `frame-patterns`,
+    `document-presets`, `intake-presets`.
+- **`intakes`** — a storyline SENT to a client to collect answers, documents and
+  a signature, which had no CLI surface at all. `list`, `get`, `send`,
+  `review-document`, `release-gate`, `cancel`.
+
+  ⚠️ `send` carries its own scope (`intakes:send`) because it emails a real
+  person — `intakes:write` (reviewing a document) does not grant it.
+  ⛔ `get` never returns document BYTES or OCR text. Those are KYC and identity
+  scans; they are not reachable with a bearer string.
+
+## [0.15.0]
+
+Published 2026-07-27 without a changelog entry; recorded here after the fact.
+
+### Added
+- **`websites`** — the v1 redesign chain: `discover` a domain's pages, `ingest`
+  the ones worth keeping, and `apply` them as the AI website builder's sitemap.
+  Reads structure and content (headings, copy, CTAs, navigation), never markup:
+  it rebuilds a site's purpose in a new design language and is deliberately not
+  a cloner. Scraping is billed per page.
 
 ## [0.14.0]
 
