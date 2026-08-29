@@ -140,6 +140,29 @@ export const RESOURCES = {
             delete: { method: 'DELETE', path: '/showings/:showing' },
         },
     },
+    // The Notes app (/notes). Named `notebook`, NOT `notes`, because `notes`
+    // is already the CRM annotation-on-a-contact resource above — two
+    // unrelated systems that share an English word. Renaming that one would
+    // break every existing script, so the new surface takes the new name.
+    notebook: {
+        summary: 'Notes — write & organise notes across your personal, team, business and professional areas',
+        commands: {
+            list: { method: 'GET', path: '/knowledge/notes' },
+            get: { method: 'GET', path: '/knowledge/notes/:uuid' },
+            // Which areas this account can file into, and the specific team or
+            // business to target. Call this before `create` with an area.
+            scopes: { method: 'GET', path: '/knowledge/notes/scopes' },
+            // ⚠️ Send `body_json` (a TipTap doc), never `content` — content is a
+            // DERIVED plain-text mirror and is not accepted on write.
+            create: { method: 'POST', path: '/knowledge/notes' },
+            // Pass `base_version` to make an edit safe against a concurrent
+            // editor: a 409 means reload and re-apply, never blind-retry.
+            update: { method: 'PATCH', path: '/knowledge/notes/:uuid' },
+            replace: { method: 'PUT', path: '/knowledge/notes/:uuid' },
+            pin: { method: 'POST', path: '/knowledge/notes/:uuid/pin' },
+            delete: { method: 'DELETE', path: '/knowledge/notes/:uuid' },
+        },
+    },
     'open-houses': {
         summary: 'Open houses',
         commands: {
@@ -149,6 +172,13 @@ export const RESOURCES = {
             create: { method: 'POST', path: '/open-houses' },
             update: { method: 'PATCH', path: '/open-houses/:openHouse' },
             delete: { method: 'DELETE', path: '/open-houses/:openHouse' },
+            // The three generated decks (door sign-in / app intro / RSVP), each
+            // with the TRACKED share url that belongs on a flyer.
+            storylines: { method: 'GET', path: '/open-houses/:openHouse/storylines' },
+            // Idempotent by (open house, kind). WARNING: `--replace` mints new
+            // uuids and therefore new QR codes, so anything already printed
+            // stops resolving. Never pass it by default.
+            'generate-storylines': { method: 'POST', path: '/open-houses/:openHouse/storylines' },
         },
     },
     'store-products': {
@@ -855,6 +885,23 @@ export const RESOURCES = {
             delete: { method: 'DELETE', path: '/data/records/:uuid', summary: 'DELETE /data/records/{uuid}  [scope: data:records:write]' },
         },
     },
+    'daily-routines': {
+        summary: "daily routines (v1) — your plan for the day across the apps. Attended blocks send you to an app and hold a timer; background blocks run without you, alongside",
+        commands: {
+            list: { method: 'GET', path: '/daily-routines', summary: 'GET /daily-routines — your routines + their blocks; filters: status, updated_since  [scope: routines:read]' },
+            today: { method: 'GET', path: '/daily-routines/today', summary: "GET /daily-routines/today — which routine today is AND the signals that chose it (month, weekday, season, where you are, pinned mode)  [scope: routines:read]" },
+            get: { method: 'GET', path: '/daily-routines/:uuid', summary: 'GET /daily-routines/{uuid}  [scope: routines:read]' },
+            create: { method: 'POST', path: '/daily-routines', summary: "Create a routine (-d '{\"name\":\"Morning Focus\",\"blocks\":[{\"title\":\"Journal\",\"kind\":\"attended\",\"route\":\"/journals\",\"duration_minutes\":60}]}')  [scope: routines:write]" },
+            update: { method: 'PATCH', path: '/daily-routines/:uuid', summary: 'Update a routine  [scope: routines:write]' },
+            delete: { method: 'DELETE', path: '/daily-routines/:uuid', summary: 'Delete a routine  [scope: routines:write]' },
+            mode: { method: 'POST', path: '/daily-routines/mode', summary: "Pin a mode (-d '{\"mode\":\"deep_work\"}'), which overrides the automatic choice until it expires; mode:null clears it  [scope: routines:write]" },
+            start: { method: 'POST', path: '/daily-routines/:uuid/runs', summary: 'Start a run; returns current_block_uuid — the one thing to do now  [scope: routines:write]' },
+            run: { method: 'GET', path: '/daily-routines/runs/:uuid', summary: "A run's live state: every block's status + what is running in the background  [scope: routines:read]" },
+            // ⛔ Only ever for an ATTENDED block, and only once the person says
+            // they are done. Background blocks close themselves out.
+            advance: { method: 'POST', path: '/daily-routines/runs/:uuid/advance', summary: "Mark the current attended block done (-d '{\"block_id\":\"<uuid>\",\"action\":\"complete\"}'; action skip also valid)  [scope: routines:write]" },
+        },
+    },
     kits: {
         summary: 'kits (v1)',
         commands: {
@@ -1180,7 +1227,8 @@ export const RESOURCE_META = {
     // ── CRM & Clients ───────────────────────────────────────────────────────
     contacts: { area: 'crm', summary: 'CRM contacts — people & companies, plus personality, value, favors, and owned assets.' },
     'contact-lists': { area: 'crm', summary: 'Named contact lists / segments for campaigns and exports.' },
-    notes: { area: 'crm', summary: 'Timestamped notes attached to a contact.' },
+    notes: { area: 'crm', summary: 'Timestamped notes attached to a CRM contact. For the Notes APP, see `notebook`.' },
+    notebook: { area: 'productivity', summary: 'The Notes app: areas, folders, pinning, #tags, search.' },
     reminders: { area: 'crm', summary: 'Follow-up reminders on a contact.' },
     tasks: { area: 'crm', summary: 'To-dos and their status, optionally tied to a contact.' },
     deals: { area: 'crm', summary: 'Sales-pipeline deals you are a party to (read-only).' },

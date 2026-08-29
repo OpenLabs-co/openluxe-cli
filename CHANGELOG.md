@@ -3,6 +3,35 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.17.0]
+
+### Added
+- **Notes** — the writing surface at `/notes`, as `openluxe notebook`:
+  - `notebook list` — your notes, pinned first. Filters: `--area`
+    (`personal|team|business|professional`), `--tags`, `--pinned`, `--shared`,
+    `--folder_id`, `--q`, `--updated_since`, and `--sort`
+    (`recent|oldest|title|created`).
+  - `notebook scopes` — which areas this account can file into, and the
+    specific team or business to target. Call this before `create --area`;
+    a scope that does not belong to the area is a 422.
+  - `notebook get|create|update|replace|pin|delete`.
+
+  ⚠️ Send `body_json` (a TipTap document) as the body. **`content` is not
+  accepted on write** — it is a derived plain-text mirror the server
+  regenerates, and it is what search and `#hashtag` extraction read.
+
+  ⚠️ Pass `base_version` on an edit to make it safe against a concurrent
+  editor. A **409** means your copy is too far behind to merge: reload and
+  re-apply, never blind-retry, or you overwrite edits you never saw.
+
+  `--shared` returns notes somebody *else* wrote in a space you share; every
+  row carries `is_shared_with_me`.
+
+  ⚠️ Named `notebook`, not `notes`: `notes` is already the CRM
+  annotation-on-a-contact resource, and renaming it would break existing
+  scripts. They are unrelated systems that share an English word — the scopes
+  differ too (`notes:*` here, `crm:notes:*` there).
+
 ## [0.16.0]
 
 ### Added
