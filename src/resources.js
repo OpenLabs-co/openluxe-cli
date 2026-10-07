@@ -405,11 +405,78 @@ export const RESOURCES = {
         },
     },
     'email-messages': {
-        summary: 'email messages (v1)',
+        summary: 'your email — read, organize, send (v1)',
         commands: {
-            list: { method: 'GET', path: '/email-messages', summary: 'GET /email-messages  [scope: comms:email:read]' },
-            get: { method: 'GET', path: '/email-messages/:emailMessage', summary: 'GET /email-messages/{emailMessage}  [scope: comms:email:read]' },
-            send: { method: 'POST', path: '/email-messages/send', summary: 'POST /email-messages/send  [scope: comms:email:send]' },
+            list: { method: 'GET', path: '/email-messages', summary: 'Messages, newest first. --folder inbox|unread|starred|snoozed|drafts|scheduled|sent|archive|spam|trash|all, --search "from:dana has:attachment newer_than:7d", --label, --is_starred, --has_attachment, --include_body true  [scope: comms:email:read]' },
+            get: { method: 'GET', path: '/email-messages/:emailMessage', summary: 'One message (--include_body true for the body)  [scope: comms:email:read]' },
+            send: { method: 'POST', path: '/email-messages/send', summary: "SEND now from your own Gmail / Outlook / IMAP mailbox: -d '{\"to\":[\"a@x.com\"],\"subject\":\"…\",\"body\":\"…\"}' (+ cc, bcc, in_reply_to_message_id). At most 10 recipients; unsubscribed / undeliverable addresses refused. Prefer `email-drafts create`  [scope: comms:email:send]" },
+            update: { method: 'PATCH', path: '/email-messages/:emailMessage', summary: "Read / star / labels: -d '{\"is_unread\":false,\"is_starred\":true,\"add_labels\":[\"Clients\"]}'  [scope: comms:email:write]" },
+            archive: { method: 'POST', path: '/email-messages/:emailMessage/archive', summary: 'Archive the whole conversation (synced to Gmail/Outlook)  [scope: comms:email:write]' },
+            unarchive: { method: 'POST', path: '/email-messages/:emailMessage/unarchive', summary: 'Back to the Inbox  [scope: comms:email:write]' },
+            trash: { method: 'POST', path: '/email-messages/:emailMessage/trash', summary: 'Delete the conversation (Trash keeps it 30 days)  [scope: comms:email:write]' },
+            restore: { method: 'POST', path: '/email-messages/:emailMessage/restore', summary: 'Out of Trash  [scope: comms:email:write]' },
+            spam: { method: 'POST', path: '/email-messages/:emailMessage/spam', summary: 'Report the conversation as spam  [scope: comms:email:write]' },
+            'not-spam': { method: 'POST', path: '/email-messages/:emailMessage/not-spam', summary: 'Not spam — back to the Inbox  [scope: comms:email:write]' },
+            snooze: { method: 'POST', path: '/email-messages/:emailMessage/snooze', summary: "Snooze until a time: -d '{\"until\":\"2026-11-02T09:00:00Z\"}' — comes back unread  [scope: comms:email:write]" },
+            attachment: { method: 'GET', path: '/email-messages/:emailMessage/attachments/:attachment', summary: 'A 10-minute download link for one attachment  [scope: comms:email:read]' },
+        },
+    },
+    'email-threads': {
+        summary: 'email conversations (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-threads', summary: 'Conversations, newest first (one row each). --folder …, --split important|other|newsletters|receipts, --search "from:… is:unread", --connection_id  [scope: comms:email:read]' },
+            get: { method: 'GET', path: '/email-threads/:threadId', summary: 'A whole conversation, oldest first (--include_body true, --connection_id)  [scope: comms:email:read]' },
+        },
+    },
+    'email-drafts': {
+        summary: 'email drafts — saved to your Drafts, nothing sent (v1)',
+        commands: {
+            create: { method: 'POST', path: '/email-drafts', summary: "A draft in your Drafts: -d '{\"in_reply_to_message_id\":42,\"body\":\"…\"}' to reply (To + Re: filled in), or to / subject / body  [scope: comms:email:write]" },
+            update: { method: 'PATCH', path: '/email-drafts/:emailMessage', summary: 'Edit a draft (to, cc, bcc, subject, body)  [scope: comms:email:write]' },
+            delete: { method: 'DELETE', path: '/email-drafts/:emailMessage', summary: 'Throw a draft away  [scope: comms:email:write]' },
+            send: { method: 'POST', path: '/email-drafts/:emailMessage/send', summary: 'Send a draft as it stands — same gates and rate limit as `email-messages send`  [scope: comms:email:send]' },
+        },
+    },
+    'email-connections': {
+        summary: 'your mailboxes (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-connections', summary: 'Mailboxes, with can_send_via_api and syncs_changes_to_provider  [scope: comms:email:read]' },
+        },
+    },
+    'email-folders': {
+        summary: 'your email folders (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-folders', summary: 'Your folders with message counts  [scope: comms:email:read]' },
+            file: { method: 'POST', path: '/email-folders/:emailFolder/messages', summary: "File messages into a folder: -d '{\"message_ids\":[1,2]}'  [scope: comms:email:write]" },
+        },
+    },
+    'email-auto-replies': {
+        summary: 'out-of-office auto-replies (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-auto-replies', summary: 'Your saved auto-replies and which is on  [scope: comms:email:read]' },
+            enable: { method: 'POST', path: '/email-auto-replies/:uuid/enable', summary: 'Turn one on (--starts_at, --ends_at to schedule)  [scope: comms:email:write]' },
+            disable: { method: 'POST', path: '/email-auto-replies/:uuid/disable', summary: 'Turn one off  [scope: comms:email:write]' },
+        },
+    },
+    'email-agents': {
+        summary: 'AI inbox agents — sort, summarize, draft, find to-dos, alert (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-agents', summary: "Your agents, today's AI budget, the presets and the step types  [scope: comms:email:agents:read]" },
+            get: { method: 'GET', path: '/email-agents/:emailAgent', summary: 'One agent with its steps  [scope: comms:email:agents:read]' },
+            create: { method: 'POST', path: '/email-agents', summary: "Add one: -d '{\"preset\":\"smart_inbox\"}', or -d '{\"name\":\"…\",\"steps\":[{\"id\":\"c\",\"type\":\"ai_check\",\"params\":{\"question\":\"…\"}}]}'. Approving extra AI budget stays in-app  [scope: comms:email:agents:write]" },
+            update: { method: 'PATCH', path: '/email-agents/:emailAgent', summary: 'Change name, steps, trigger, scope  [scope: comms:email:agents:write]' },
+            delete: { method: 'DELETE', path: '/email-agents/:emailAgent', summary: 'Delete an agent  [scope: comms:email:agents:write]' },
+            enable: { method: 'POST', path: '/email-agents/:emailAgent/enable', summary: 'Turn on  [scope: comms:email:agents:write]' },
+            disable: { method: 'POST', path: '/email-agents/:emailAgent/disable', summary: 'Turn off  [scope: comms:email:agents:write]' },
+            runs: { method: 'GET', path: '/email-agents/:emailAgent/runs', summary: 'What it did, email by email, and what it cost  [scope: comms:email:agents:read]' },
+        },
+    },
+    'email-suggestions': {
+        summary: 'to-dos, goals and deals the inbox AI proposed (v1)',
+        commands: {
+            list: { method: 'GET', path: '/email-suggestions', summary: 'Pending suggestions (--status accepted|dismissed, --kind task|reminder|goal|deal|contact|command_center)  [scope: comms:email:agents:read]' },
+            accept: { method: 'POST', path: '/email-suggestions/:uuid/accept', summary: 'Accept — creates the real task, goal, deal… (optional -d title / due_date / priority edits)  [scope: comms:email:agents:write]' },
+            dismiss: { method: 'POST', path: '/email-suggestions/:uuid/dismiss', summary: 'Dismiss  [scope: comms:email:agents:write]' },
         },
     },
     'email-deliverability-contact-lists': {
@@ -1130,6 +1197,8 @@ export const RESOURCES = {
  * JSON. Humans on a TTY get the link line on stderr.
  */
 export const WEB = {
+    'email-threads': { hub: '/email', open: '/email', openSummary: 'Open your inbox in your browser' },
+    'email-agents': { hub: '/email/automations', open: '/email/automations', openSummary: 'Open your AI inbox agents in your browser' },
     // No hub/open — a delegation isn't a browsable resource. This entry only
     // supplies the "Preview" verb so that when a completed delegation's
     // response carries public_url (the finished artifact's page/CDN url), the
@@ -1328,7 +1397,14 @@ export const RESOURCE_META = {
     calls: { area: 'comms', summary: 'Call logs and recordings (read-only).' },
     'phone-numbers': { area: 'comms', summary: 'Your provisioned phone numbers.' },
     'sms-messages': { area: 'comms', summary: 'SMS message history and sending.' },
-    'email-messages': { area: 'comms', summary: 'Email message history and sending.' },
+    'email-messages': { area: 'comms', summary: 'Your email: read, archive / trash / spam / snooze, label, send (up to 10 recipients, from your own mailbox).' },
+    'email-threads': { area: 'comms', summary: 'Email conversations — list by folder or sorted tab, search with from: / has:attachment / newer_than:, read one whole.' },
+    'email-drafts': { area: 'comms', summary: 'Email drafts saved to your Drafts — the safe way to write mail for someone; sending one is a separate step.' },
+    'email-connections': { area: 'comms', summary: 'Your connected mailboxes and which can send through the API.' },
+    'email-folders': { area: 'comms', summary: 'Your email folders, and filing mail into them.' },
+    'email-auto-replies': { area: 'comms', summary: 'Out-of-office auto-replies: list, turn on (optionally scheduled), turn off.' },
+    'email-agents': { area: 'comms', summary: 'AI inbox agents — automations that sort, summarize, draft replies, find to-dos, match goals and alert you on your email.' },
+    'email-suggestions': { area: 'comms', summary: 'To-dos, reminders, goals, deals, contacts and Command Center wins the inbox AI proposed — accept creates the real record.' },
 
     // ── Travel ──────────────────────────────────────────────────────────────
     travel: { area: 'travel', summary: 'Travel bookings across flights, stays, and cars (read-only).' },
