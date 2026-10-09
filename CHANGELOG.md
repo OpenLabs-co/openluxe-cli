@@ -3,6 +3,30 @@
 All notable changes to `@openluxeco/cli` are documented here. This project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Calendar** — `openluxe calendar`:
+  - `calendar events --start 2026-10-12 --end 2026-10-18` — events in a range
+    (a bare `--end` date includes that whole day). `--ai only|exclude` isolates
+    or hides the AI layer: scheduled agent work, emails set to send later,
+    storyline sends, scheduled posts and reminders.
+  - `calendar create|get|update|delete` — your own events. A time with no offset
+    is read in `--timezone`, or the account's. A synced or AI-layer event is
+    `409 event_not_editable`.
+  - `calendar calendars`, `calendar create-calendar`, `calendar availability`
+    (merged busy blocks; the AI layer is ignored) and `calendar feed` (the
+    subscribable `.ics` URLs).
+- **Scheduled AI work** — `openluxe schedules`: have an agent do something once
+  at a set time or on a recurrence. Default time is 12:00 in your timezone.
+  - `schedules create --prompt "…" --run_at 2026-10-16T09:00:00` (once), or
+    `-d '{"days_of_week":["tue","wed","fri"]}'` / `--cadence weekly --time 09:00`.
+    `--email_result true` emails you each result.
+  - `schedules list|get|update|delete|pause|resume|run|runs|upcoming|recipes`.
+  - `schedules send` only **drafts** a message for a time: it is not sent and not
+    scheduled until the account owner approves it, signed in, at the returned
+    `web_url`. No token can approve a draft or fire an approved send.
+
 ## [0.17.0]
 
 ### Added

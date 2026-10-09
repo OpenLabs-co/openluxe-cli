@@ -84,6 +84,37 @@ export const RESOURCES = {
             delete: { method: 'DELETE', path: '/notes/:note' },
         },
     },
+    calendar: {
+        summary: "Your calendar — events, calendars, free/busy and the subscribable feed. `--ai only|exclude` isolates or hides the AI layer (scheduled agent work, emails set to send later, storyline sends, scheduled posts, reminders).",
+        commands: {
+            events: { method: 'GET', path: '/calendar/events', summary: 'List events in a range (--start 2026-10-12 --end 2026-10-18; a bare --end date includes that whole day). Filters: --calendar_id, --source, --ai only|exclude, --updated_since  [scope: calendar:read]' },
+            get: { method: 'GET', path: '/calendar/events/:uuid', summary: 'One event  [scope: calendar:read]' },
+            create: { method: 'POST', path: '/calendar/events', summary: "Create your own event (--title \"Dentist\" --starts_at 2026-10-16T09:00:00 --ends_at 2026-10-16T10:00:00). A time with no offset is read in --timezone, or the account's  [scope: calendar:write]" },
+            update: { method: 'PATCH', path: '/calendar/events/:uuid', summary: 'Change one of your own events. A synced or AI-layer event is 409 event_not_editable — change the thing it mirrors  [scope: calendar:write]' },
+            delete: { method: 'DELETE', path: '/calendar/events/:uuid', summary: 'Delete one of your own events  [scope: calendar:write]' },
+            calendars: { method: 'GET', path: '/calendar/calendars', summary: 'Your calendars, including each AI agent\'s own  [scope: calendar:read]' },
+            'create-calendar': { method: 'POST', path: '/calendar/calendars', summary: 'Create a calendar (--name "Family")  [scope: calendar:write]' },
+            availability: { method: 'GET', path: '/calendar/availability', summary: 'Merged busy blocks for a range (--start … --end …). The AI layer is ignored: a report running at noon does not make you busy  [scope: calendar:read]' },
+            feed: { method: 'GET', path: '/calendar/feed', summary: 'The subscribable .ics URLs (plain, with the AI layer, AI only). Never mints a token  [scope: calendar:read]' },
+        },
+    },
+    schedules: {
+        summary: 'Scheduled AI work — "do this later / every…". Have an agent do something once at a set time or on a recurrence; it shows on the calendar\'s AI layer. Default time is 12:00 in your timezone. Nothing here can send a message to someone else unattended.',
+        commands: {
+            list: { method: 'GET', path: '/schedules', summary: 'Your schedules  [scope: schedules:read]' },
+            get: { method: 'GET', path: '/schedules/:uuid', summary: 'One schedule, with what to do next  [scope: schedules:read]' },
+            create: { method: 'POST', path: '/schedules', summary: "Schedule work: --prompt \"Run analytics on my store and orders\" with EITHER --run_at 2026-10-16T09:00:00 (once) OR a recurrence (-d '{\"days_of_week\":[\"tue\",\"wed\",\"fri\"]}', --cadence daily|weekdays|weekly|monthly, --time 09:00). --email_result true emails you each result  [scope: schedules:write]" },
+            update: { method: 'PATCH', path: '/schedules/:uuid', summary: 'Change when it runs, its name, or whether the result is emailed  [scope: schedules:write]' },
+            delete: { method: 'DELETE', path: '/schedules/:uuid', summary: 'Delete a schedule  [scope: schedules:write]' },
+            pause: { method: 'POST', path: '/schedules/:uuid/pause', summary: 'Pause it — nothing runs until resumed  [scope: schedules:write]' },
+            resume: { method: 'POST', path: '/schedules/:uuid/resume', summary: 'Resume it. A finished schedule is 409 — give it a new time with update  [scope: schedules:write]' },
+            run: { method: 'POST', path: '/schedules/:uuid/run', summary: 'Run its work now (spends credits; 402 when short). An approved send is 403 — only the account owner can send it, signed in  [scope: schedules:write]' },
+            runs: { method: 'GET', path: '/schedules/:uuid/runs', summary: 'What each occurrence did  [scope: schedules:read]' },
+            upcoming: { method: 'GET', path: '/schedules/upcoming', summary: 'Everything scheduled to happen for you in the next --days (default 7), in order  [scope: schedules:read]' },
+            recipes: { method: 'GET', path: '/schedules/recipes', summary: 'Ready-made routines (personal, household, business); each `schedule` can be passed straight to create  [scope: schedules:read]' },
+            send: { method: 'POST', path: '/schedules/sends', summary: "Draft a message to send at a time (-d '{\"tool\":\"crm.send_email\",\"input\":{…},\"run_at\":\"2026-10-16T09:00:00\"}'). It is NOT sent and NOT scheduled until the account owner approves it at the returned web_url  [scope: schedules:write]" },
+        },
+    },
     reminders: {
         summary: 'CRM reminders',
         commands: {
